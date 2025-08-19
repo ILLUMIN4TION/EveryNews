@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">EveryNewsApp</string>
+    <string name="news_thumbnail">뉴스 썸네일</string>
 </resources>

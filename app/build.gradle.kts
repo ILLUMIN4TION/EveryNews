@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.everynewsapp"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.everynewsapp"
@@ -36,6 +36,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.coil)
     implementation(libs.okhttp)
     implementation(libs.gson)
     implementation(libs.androidx.core.ktx)
