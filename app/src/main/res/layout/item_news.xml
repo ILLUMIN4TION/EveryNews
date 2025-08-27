@@ -51,8 +51,8 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_bookmark_border"
-            android:contentDescription="@string/bookmark" />
+            android:src="@android:drawable/star_off"
+            android:contentDescription="test" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
