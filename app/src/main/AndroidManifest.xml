@@ -15,6 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EveryNewsApp"
         tools:targetApi="31">
+
+        <activity android:name=".news.ui.NewsWebViewActivity" />
+        <activity android:name=".news.ui.NewsDetailActivity" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
