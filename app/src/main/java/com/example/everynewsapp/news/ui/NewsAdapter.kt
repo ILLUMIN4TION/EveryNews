@@ -41,6 +41,14 @@ class NewsAdapter(
         holder.bookmarkButton.setOnClickListener {
             onBookmarkClick(item)
         }
+        holder.itemView.setOnClickListener {
+            val intent = Intent(it.context, NewsDetailActivity::class.java)
+            intent.putExtra("title", item.title.replace("<b>", "").replace("</b>", ""))
+            intent.putExtra("description", item.description.replace("<b>", "").replace("</b>", ""))
+            intent.putExtra("pubDate", item.pubDate)
+            intent.putExtra("link", item.link)
+            it.context.startActivity(intent)
+        }
     }
 
     override fun getItemCount() = newsList.size
