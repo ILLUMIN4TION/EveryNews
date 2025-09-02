@@ -4,9 +4,6 @@ plugins {
 }
 
 android {
-    buildFeatures {
-        viewBinding = true
-    }
     namespace = "com.example.everynewsapp"
     compileSdk = 36
 
