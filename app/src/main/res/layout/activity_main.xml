@@ -77,7 +77,14 @@
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
-
+            <TextView
+                android:layout_margin="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="최신 뉴스"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textSize="25dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_default_news"
@@ -88,7 +95,7 @@
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:clipToPadding="false"
-                tools:listitem="@layout/item_news"
+
                 android:layout_height="wrap_content"/>
 
             <View
@@ -108,7 +115,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Trending News"
+                    android:text="인기 뉴스"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"
                     android:textStyle="bold"

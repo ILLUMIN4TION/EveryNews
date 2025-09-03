@@ -31,7 +31,7 @@ class NewsAdapter(private val newsList: List<NewsItem>) :
 
         // 1. 뉴스 제목 표시 (HTML 태그 제거)
         holder.title.text = item.title.replace("<b>", "").replace("</b>", "")
-        holder.description.text = item.description
+        holder.description.text = item.description.replace("<b>", "").replace("</b>", "")
 
         // 2. 썸네일 이미지 로드
         val imageUrl = item.imageUrl
