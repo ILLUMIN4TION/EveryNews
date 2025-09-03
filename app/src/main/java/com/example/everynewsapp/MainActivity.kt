@@ -1,4 +1,4 @@
-package com.example.everynewsapp // 본인의 패키지 이름 확인
+package com.example.everynewsapp
 
 import android.os.Bundle
 import android.util.Log
@@ -6,9 +6,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.everynewsapp.databinding.ActivityMainBinding // ViewBinding import
-import com.example.everynewsapp.news.model.NewsItem
 import com.example.everynewsapp.news.network.NaverNewsApi
 import com.example.everynewsapp.news.ui.NewsAdapter
+import com.example.everynewsapp.news.ui.TrendingNewsAdapter
 import com.google.android.material.chip.Chip // Chip import 추가
 
 class MainActivity : AppCompatActivity() {
@@ -16,6 +16,7 @@ class MainActivity : AppCompatActivity() {
     // ViewBinding으로 뷰를 안전하게 제어합니다.
     private lateinit var binding: ActivityMainBinding
     private lateinit var newsAdapter: NewsAdapter
+    private lateinit var trendingNewsAdapter: TrendingNewsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +28,8 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
 
         // 2. 기존 뉴스 불러오기 기능 호출
-        fetchNews("IT")
+        fetchNews("인기 뉴스")
+
 
         // 3. 추가된 UI 이벤트 리스너 설정
         setupEventListeners()
@@ -37,10 +39,19 @@ class MainActivity : AppCompatActivity() {
      * RecyclerView를 초기 설정하는 함수
      */
     private fun setupRecyclerView() {
-        newsAdapter = NewsAdapter(emptyList()) // 초기엔 빈 리스트로 어댑터 생성
-        binding.rvTrendingNews.adapter = newsAdapter
-        // RecyclerView가 아이템들을 어떻게 보여줄지(가로 방향으로) 결정하는 LayoutManager 설정
-        binding.rvTrendingNews.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+
+        newsAdapter = NewsAdapter(emptyList())
+        binding.rvDefaultNews.adapter = newsAdapter
+        binding.rvDefaultNews.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
+        trendingNewsAdapter = TrendingNewsAdapter(emptyList())
+        binding.rvTrendingNews.adapter = trendingNewsAdapter
+        binding.rvTrendingNews.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false)
+
+//        TrendingNewsAdapter = TrendingNewsAdapter(emptyList()) // 초기엔 빈 리스트로 어댑터 생성
+//        binding.rvTrendingNews.adapter = TrendingNewsAdapter
+//        // RecyclerView가 아이템들을 어떻게 보여줄지(가로 방향으로) 결정하는 LayoutManager 설정
+//        binding.rvTrendingNews.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
     }
 
     /**
@@ -89,7 +100,11 @@ class MainActivity : AppCompatActivity() {
                 runOnUiThread {
                     // 어댑터에 새로운 뉴스 리스트를 전달하고, RecyclerView에 다시 연결
                     newsAdapter = NewsAdapter(it)
-                    binding.rvTrendingNews.adapter = newsAdapter
+                    binding.rvDefaultNews.adapter = newsAdapter
+
+
+                    trendingNewsAdapter = TrendingNewsAdapter(it)
+                    binding.rvTrendingNews.adapter = trendingNewsAdapter
                 }
             } ?: run {
                 Log.e("MainActivity", "뉴스 불러오기 실패 또는 결과 없음")

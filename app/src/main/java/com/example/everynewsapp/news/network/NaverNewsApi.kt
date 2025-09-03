@@ -1,15 +1,18 @@
+// NaverNewsApi.kt
 package com.example.everynewsapp.news.network
 
-import com.example.everynewsapp.news.model.NewsResponse
 import com.example.everynewsapp.news.model.NewsItem
+import com.example.everynewsapp.news.model.NewsResponse
+import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import com.google.gson.Gson
 import java.net.URLEncoder
 
 object NaverNewsApi {
     private val client = OkHttpClient()
     private val gson = Gson()
+    private val htmlFetcher = HtmlFetcher(client)
+    private val imageCrawler = ImageCrawler()
 
     private const val CLIENT_ID = "sA74uxUzANP8rSi4SvSU"
     private const val CLIENT_SECRET = "cCy55viSiE"
@@ -24,17 +27,42 @@ object NaverNewsApi {
             .addHeader("X-Naver-Client-Secret", CLIENT_SECRET)
             .build()
 
-        //메인스레드에 네트워크 관련 작업 -> 예외발생 -> 별도의 스레드 사용
-        Thread { // 람다, 매개변수 없고 본문만 있음
+        Thread {
             try {
-                val response = client.newCall(request).execute() // 받은 뉴스 응답을 저장
-                val body = response.body?.string() // 응답에서 body를 빼냄
-                val newsResponse = gson.fromJson(body, NewsResponse::class.java) // json으로 저장되어 있는 body를 클래스타입으로 바꾸고 새로 저장
-                callback(newsResponse.items)
+                val response = client.newCall(request).execute()
+                val body = response.body?.string()
+                val newsResponse = gson.fromJson(body, NewsResponse::class.java)
+
+                // 1. 뉴스 아이템 리스트 가져오기
+                val initialNewsItems = newsResponse.items ?: emptyList()
+
+                // 2. 제목에 한글이 포함된 뉴스만 필터링합니다.
+                val koreanNewsItems = initialNewsItems.filter { newsItem ->
+                    // HTML 태그를 제거하여 순수 텍스트만 필터링에 사용합니다.
+                    val cleanTitle = newsItem.title.replace("<b>", "").replace("</b>", "")
+                    // 정규식을 사용해 문자열에 한글이 하나라도 포함되어 있는지 확인합니다.
+                    cleanTitle.matches(".*[가-힣].*".toRegex())
+                }
+
+                // 3. 필터링된 리스트를 사용해 이미지 크롤링을 진행합니다.
+                val finalNewsItems = koreanNewsItems.map { newsItem ->
+                    val newsLink = newsItem.originallink ?: newsItem.link
+                    if (newsLink != null) {
+                        val htmlContent = htmlFetcher.fetchHtml(newsLink)
+                        if (htmlContent != null) {
+                            val imageUrl = imageCrawler.extractImageUrl(htmlContent)
+                            newsItem.imageUrl = imageUrl
+                        }
+                    }
+                    newsItem
+                }
+
+                callback(finalNewsItems)
+
             } catch (e: Exception) {
                 e.printStackTrace()
                 callback(null)
             }
         }.start()
-    } // fetchNewsEnd
+    }
 }

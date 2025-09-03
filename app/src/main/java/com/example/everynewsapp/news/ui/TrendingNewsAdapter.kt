@@ -10,28 +10,25 @@ import coil.load
 import com.example.everynewsapp.R
 import com.example.everynewsapp.news.model.NewsItem
 
-class NewsAdapter(private val newsList: List<NewsItem>) :
-    RecyclerView.Adapter<NewsAdapter.NewsViewHolder>() {
+class TrendingNewsAdapter(private val newsList: List<NewsItem>) :
+    RecyclerView.Adapter<TrendingNewsAdapter.TrendingNewsViewHolder>() {
 
-    class NewsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val title: TextView = view.findViewById(R.id.tv_default_news_title)
-        val thumbnail: ImageView = view.findViewById(R.id.iv_defaul_news_thumbnail)
-
-        val description: TextView = view.findViewById(R.id.tv_default_news_description)
+    class TrendingNewsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val title: TextView = view.findViewById(R.id.tv_small_news_title)
+        val thumbnail: ImageView = view.findViewById(R.id.iv_small_news_thumbnail)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrendingNewsViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_news, parent, false)
-        return NewsViewHolder(view)
+            .inflate(R.layout.item_news_small, parent, false)
+        return TrendingNewsViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: TrendingNewsViewHolder, position: Int) {
         val item = newsList[position]
 
         // 1. 뉴스 제목 표시 (HTML 태그 제거)
         holder.title.text = item.title.replace("<b>", "").replace("</b>", "")
-        holder.description.text = item.description
 
         // 2. 썸네일 이미지 로드
         val imageUrl = item.imageUrl
@@ -42,7 +39,6 @@ class NewsAdapter(private val newsList: List<NewsItem>) :
             }
         } else {
             // 크롤링에 실패했거나 이미지가 없는 경우, 기본 이미지를 로드
-            // R.drawable.default_news_icon 은 기본 이미지를 위한 리소스 ID로 가정합니다.
             holder.thumbnail.load(R.drawable.ic_search)
         }
     }

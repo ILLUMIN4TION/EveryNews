@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation("org.jsoup:jsoup:1.21.2")
     implementation(libs.coil)
     implementation(libs.okhttp)
     implementation(libs.gson)
