@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.everynewsapp.R
 import com.example.everynewsapp.news.model.NewsItem
+import android.content.Intent
+import com.example.everynewsapp.NewsDetailActivity
 
 class NewsAdapter(private val newsList: List<NewsItem>) :
     RecyclerView.Adapter<NewsAdapter.NewsViewHolder>() {
@@ -16,7 +18,6 @@ class NewsAdapter(private val newsList: List<NewsItem>) :
     class NewsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val title: TextView = view.findViewById(R.id.tv_default_news_title)
         val thumbnail: ImageView = view.findViewById(R.id.iv_defaul_news_thumbnail)
-
         val description: TextView = view.findViewById(R.id.tv_default_news_description)
     }
 
@@ -29,30 +30,37 @@ class NewsAdapter(private val newsList: List<NewsItem>) :
     override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
         val item = newsList[position]
 
-        // 1. 뉴스 제목 표시 (HTML 태그 제거)
+        // 1. 뉴스 제목 및 설명 표시
         holder.title.text = item.title.replace("<b>", "").replace("</b>", "")
         holder.description.text = item.description.replace("<b>", "").replace("</b>", "")
 
         // 2. 썸네일 이미지 로드
         val imageUrl = item.imageUrl
         if (imageUrl != null) {
-            // 크롤링된 이미지가 있는 경우, 해당 URL을 로드
             holder.thumbnail.load(imageUrl) {
                 crossfade(true)
             }
         } else {
-            // 크롤링에 실패했거나 이미지가 없는 경우, 기본 이미지를 로드
-            // R.drawable.default_news_icon 은 기본 이미지를 위한 리소스 ID로 가정합니다.
             holder.thumbnail.load(R.drawable.ic_search)
         }
+
+        // --- 여기부터 추가된 코드입니다 ---
+        // 3. 각 아이템 뷰에 클릭 이벤트 리스너 설정
+        holder.itemView.setOnClickListener {
+            val context = holder.itemView.context
+            // NewsDetailActivity로 이동하기 위한 "티켓"(Intent) 생성
+            val intent = Intent(context, NewsDetailActivity::class.java).apply {
+                // "티켓"에 클릭된 뉴스의 모든 데이터(item)를 첨부
+                putExtra("NEWS_ITEM", item)
+            }
+            // "티켓"을 사용하여 새 액티비티 시작
+            context.startActivity(intent)
+        }
+        // --- 여기까지 추가된 코드입니다 ---
     }
 
     override fun getItemCount() = newsList.size
 
-    /**
-     * RecyclerView 데이터를 업데이트하는 함수
-     * 메인 액티비티에서 새로운 뉴스 목록을 가져올 때 호출
-     */
     fun updateData(newNewsList: List<NewsItem>) {
         (newsList as ArrayList).clear()
         (newsList as ArrayList).addAll(newNewsList)
