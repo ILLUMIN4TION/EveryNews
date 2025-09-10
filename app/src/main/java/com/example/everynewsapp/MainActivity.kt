@@ -1,5 +1,6 @@
 package com.example.everynewsapp
 
+import android.content.Intent // Intent import 추가
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -18,7 +19,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    // 어댑터의 데이터 리스트를 바꾸기 위해 var로 변경하고, MutableList를 사용합니다.
     private var newsList = mutableListOf<NewsItem>()
     private var trendingNewsList = mutableListOf<NewsItem>()
 
@@ -33,12 +33,10 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
         setupEventListeners()
 
-        // 앱 시작 시 "IT" 뉴스를 불러옵니다. 추후 최신뉴스로 수정하고 카테고리를 통해 분야를 바꾸도록 수정
         fetchNews("IT")
     }
 
     private fun setupRecyclerView() {
-        // 어댑터를 초기화할 때 MutableList를 전달합니다.
         newsAdapter = NewsAdapter(newsList)
         binding.rvDefaultNews.adapter = newsAdapter
         binding.rvDefaultNews.layoutManager = LinearLayoutManager(this)
@@ -48,35 +46,44 @@ class MainActivity : AppCompatActivity() {
         binding.rvTrendingNews.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
     }
 
+    // --- 이 함수가 수정되었습니다 ---
     private fun setupEventListeners() {
         binding.bottomNavigationView.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.navigation_home -> {
-                    Toast.makeText(this, "홈 선택", Toast.LENGTH_SHORT).show()
+                    // 현재 화면이므로 아무것도 하지 않음
                     true
                 }
-                // ... (다른 메뉴 아이템)
+                R.id.navigation_recommend -> { // '추천 뉴스' ID로 변경되었을 수 있습니다.
+                    val intent = Intent(this, RecommendActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.navigation_scrap -> {
+                    val intent = Intent(this, ScrapActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.navigation_settings -> {
+                    val intent = Intent(this, SettingsActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
                 else -> false
             }
         }
 
         binding.chipGroupCategory.findViewById<Chip>(R.id.chipPolitics).setOnClickListener {
             Toast.makeText(this, "정치 카테고리 선택", Toast.LENGTH_SHORT).show()
-            fetchNews("정치") // 클릭 시 해당 카테고리 뉴스 불러오기,
+            fetchNews("정치")
         }
     }
 
-    /**
-     * 네이버 뉴스 API를 통해 뉴스를 가져오는 함수 (코루틴 방식으로 수정됨)
-     */
     private fun fetchNews(query: String) {
-        // lifecycleScope를 사용해 Activity 생명주기에 안전한 코루틴을 시작합니다.
         lifecycleScope.launch {
-            // suspend 함수인 NaverNewsApi.fetchNews를 호출합니다.
             val fetchedItems = NaverNewsApi.fetchNews(query)
 
             if (fetchedItems != null) {
-                // 어댑터의 데이터를 업데이트하는 효율적인 방식으로 변경
                 newsAdapter.updateData(fetchedItems)
                 trendingNewsAdapter.updateData(fetchedItems)
             } else {
