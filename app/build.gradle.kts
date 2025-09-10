@@ -1,7 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("kotlin-parcelize")
+//    id("kotlin-parcelize")
+//    id("kotlin-kapt")
 }
 
 android {
@@ -41,7 +42,21 @@ android {
 
 dependencies {
     implementation("org.jsoup:jsoup:1.21.2")
-    implementation(libs.coil)
+
+    // Room (버전 카탈로그 사용)
+    implementation("androidx.room:room-runtime:2.6.1") // 또는 "androidx.room:room-runtime:2.6.1"
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation(libs.androidx.room.ktx)
+
+    // ViewModel & LiveData (Lifecycle)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-common-java8:2.7.0")
+
+    implementation(libs.coil) // 이미지 로딩 라이브러리 (Coil 선택)
+    // implementation("com.github.bumptech.glide:glide:4.16.0") // Glide 사용 안 할 경우 제거
+
     implementation(libs.okhttp)
     implementation(libs.gson)
     implementation(libs.androidx.core.ktx)
@@ -49,9 +64,9 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.room.common.jvm)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("com.github.bumptech.glide:glide:4.16.0")
 }
+

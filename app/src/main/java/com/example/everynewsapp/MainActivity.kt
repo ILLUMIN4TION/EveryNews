@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.everynewsapp.databinding.ActivityMainBinding
 import com.example.everynewsapp.news.model.NewsItem
 import com.example.everynewsapp.news.network.NaverNewsApi
-import com.example.everynewsapp.news.ui.NewsAdapter
-import com.example.everynewsapp.news.ui.TrendingNewsAdapter
+import com.example.everynewsapp.ui.NewsAdapter
+import com.example.everynewsapp.ui.TrendingNewsAdapter
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 

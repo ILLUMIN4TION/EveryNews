@@ -1,4 +1,4 @@
-package com.example.everynewsapp.news.ui
+package com.example.everynewsapp.ui
 
 import android.text.Html
 import android.view.LayoutInflater

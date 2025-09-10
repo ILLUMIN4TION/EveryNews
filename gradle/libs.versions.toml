@@ -13,6 +13,7 @@ constraintlayout = "2.2.1"
 okhttp = "4.11.0"
 gson = "2.10.1"
 roomCommonJvm = "2.7.2"
+roomKtx = "2.7.2"
 
 [libraries]
 coil = { module = "io.coil-kt:coil", version.ref = "coil" }
@@ -27,6 +28,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 androidx-room-common-jvm = { group = "androidx.room", name = "room-common-jvm", version.ref = "roomCommonJvm" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
