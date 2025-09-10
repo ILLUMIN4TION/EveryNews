@@ -7,7 +7,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.everynewsapp.news.model.NewsItem
 import com.example.everynewsapp.news.model.ScrappedNewsItem
-import com.example.everynewsapp.news.model.ViewedNewsItem
+//import com.example.everynewsapp.news.model.ViewedNewsItem
 import com.example.everynewsapp.news.repository.NewsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,15 +15,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ViewModels {
-    inner class ViewedNewsViewModel(private val repository: NewsRepository) : ViewModel() {
-        val viewedNews: LiveData<List<ViewedNewsItem>> = repository.getAllViewedNews().asLiveData()
-
-        fun clearHistory() {
-            viewModelScope.launch {
-                repository.clearAllViewedNews()
-            }
-        }
-    }
+//    inner class ViewedNewsViewModel(private val repository: NewsRepository) : ViewModel() {
+//        val viewedNews: LiveData<List<ViewedNewsItem>> = repository.getAllViewedNews().asLiveData()
+//
+//        fun clearHistory() {
+//            viewModelScope.launch {
+//                repository.clearAllViewedNews()
+//            }
+//        }
+//    }
 
     class ScrappedNewsViewModel(private val repository: NewsRepository) :
         ViewModel() {
@@ -36,11 +36,11 @@ class ViewModels {
     inner class NewsDetailViewModel(private val repository: NewsRepository) : ViewModel() {
         // ...
 
-        fun onNewsViewed(newsItem: NewsItem) {
-            viewModelScope.launch {
-                repository.addViewedNews(newsItem)
-            }
-        }
+//        fun onNewsViewed(newsItem: NewsItem) {
+//            viewModelScope.launch {
+//                repository.addViewedNews(newsItem)
+//            }
+//        }
 
         private val _isScrapped = MutableStateFlow(false)
         val isScrapped: StateFlow<Boolean> = _isScrapped.asStateFlow()
