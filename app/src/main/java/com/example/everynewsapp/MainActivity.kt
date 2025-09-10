@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
         setupEventListeners()
 
-        // 앱 시작 시 "IT" 뉴스를 불러옵니다.
+        // 앱 시작 시 "IT" 뉴스를 불러옵니다. 추후 최신뉴스로 수정하고 카테고리를 통해 분야를 바꾸도록 수정
         fetchNews("IT")
     }
 
@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.chipGroupCategory.findViewById<Chip>(R.id.chipPolitics).setOnClickListener {
             Toast.makeText(this, "정치 카테고리 선택", Toast.LENGTH_SHORT).show()
-            fetchNews("정치") // 클릭 시 해당 카테고리 뉴스 불러오기
+            fetchNews("정치") // 클릭 시 해당 카테고리 뉴스 불러오기,
         }
     }
 

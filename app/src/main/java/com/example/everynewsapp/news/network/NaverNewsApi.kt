@@ -1,5 +1,6 @@
 package com.example.everynewsapp.news.network
 
+import android.util.Log
 import com.example.everynewsapp.news.model.NewsItem
 import com.example.everynewsapp.news.model.NewsResponse
 import com.google.gson.Gson
@@ -47,16 +48,28 @@ object NaverNewsApi {
 
                 // coroutineScope를 사용해 모든 이미지 크롤링 작업을 동시에 병렬로 처리
                 coroutineScope {
-                    koreanNewsItems.map { newsItem ->
-                        async { // 각 작업을 비동기(async)로 실행
+                    koreanNewsItems.map { newsItem -> // newsItem은 NewsItem 타입
+                        async {
+                            // newsLink는 크롤링할 원본 기사의 URL (http 또는 https로 시작해야 함)
                             val newsLink = newsItem.originallink.ifEmpty { newsItem.link }
-                            val htmlContent = htmlFetcher.fetchHtml(newsLink)
-                            val imageUrl = htmlContent?.let { imageCrawler.extractImageUrl(it) }
 
-                            // 오류 수정: 기존 객체를 수정하는 대신 copy()를 사용해 imageUrl이 추가된 새 객체를 생성
+                            // newsLink가 비어있거나 유효한 URL 형식이 아니면 크롤링을 건너뛸 수 있도록 방어 코드 추가
+                            if (newsLink.isEmpty() || !(newsLink.startsWith("http://") || newsLink.startsWith("https://"))) {
+                                Log.w("NaverNewsApi", "Invalid or empty newsLink, skipping crawling: $newsLink")
+                                return@async newsItem // 이미지 없이 기존 newsItem 반환
+                            }
+
+                            val htmlContent = htmlFetcher.fetchHtml(newsLink)
+
+                            // 여기가 54번째 줄 근처입니다.
+                            val imageUrl = htmlContent?.let { contentOfHtml -> // it 대신 명시적인 이름 사용 (가독성 향상)
+                                // 수정된 부분: 두 번째 인자로 newsLink (baseUrl)를 전달합니다.
+                                imageCrawler.extractImageUrl(contentOfHtml, newsLink)
+                            }
+
                             newsItem.copy(imageUrl = imageUrl)
                         }
-                    }.map { it.await() } // 모든 비동기 작업이 끝날 때까지 기다렸다가 결과를 합침
+                    }.map { it.await() }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
