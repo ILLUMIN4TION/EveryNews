@@ -30,9 +30,8 @@ class NewsAdapter(private val newsList: List<NewsItem>) :
     override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
         val item = newsList[position]
 
-        // 1. 뉴스 제목 및 설명 표시
-        holder.title.text = item.title.replace("<b>", "").replace("</b>", "")
-        holder.description.text = item.description.replace("<b>", "").replace("</b>", "")
+        //뉴스 타이틀과 내용에서 HTML 태그 제거
+        deleteHTMLTag(holder, item)
 
         // 2. 썸네일 이미지 로드
         val imageUrl = item.imageUrl
@@ -66,4 +65,23 @@ class NewsAdapter(private val newsList: List<NewsItem>) :
         (newsList as ArrayList).addAll(newNewsList)
         notifyDataSetChanged()
     }
+}
+
+private fun deleteHTMLTag(
+    holder: NewsAdapter.NewsViewHolder,
+    item: NewsItem
+) {
+    // 1. 뉴스 제목 및 설명 표시
+    holder.title.text = item.title.replace("<b>", "")
+        .replace("</b>", "")
+        .replace("&quot;", "\"")
+        .replace("&amp;", "&")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+    holder.description.text = item.description.replace("<b>", "")
+        .replace("</b>", "")
+        .replace("&quot;", "\"")
+        .replace("&amp;", "&")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
 }
