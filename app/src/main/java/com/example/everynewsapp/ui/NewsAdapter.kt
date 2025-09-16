@@ -10,15 +10,20 @@ import coil.load
 import com.example.everynewsapp.R
 import com.example.everynewsapp.news.model.NewsItem
 import android.content.Intent
+import android.widget.Toast
 import com.example.everynewsapp.NewsDetailActivity
+import com.example.everynewsapp.news.viewModel.NewsDetailViewModel
+import com.example.everynewsapp.news.viewModel.ViewModels
 
-class NewsAdapter(private val newsList: List<NewsItem>) :
+class NewsAdapter(private var newsList: List<NewsItem> = mutableListOf(), private val viewModel: NewsDetailViewModel) :
     RecyclerView.Adapter<NewsAdapter.NewsViewHolder>() {
 
     class NewsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val title: TextView = view.findViewById(R.id.tv_default_news_title)
         val thumbnail: ImageView = view.findViewById(R.id.iv_defaul_news_thumbnail)
         val description: TextView = view.findViewById(R.id.tv_default_news_description)
+
+        val scrapButton: ImageView = view.findViewById(R.id.imv_news_scrap)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder {
@@ -56,13 +61,20 @@ class NewsAdapter(private val newsList: List<NewsItem>) :
             context.startActivity(intent)
         }
         // --- 여기까지 추가된 코드입니다 ---
+        holder.scrapButton.setOnClickListener {
+            viewModel.toggleScrap(item)
+            // 토스트 메시지나 아이콘 변경 등 UI 피드백을 추가할 수 있습니다.
+            Toast.makeText(holder.itemView.context, "스크랩 상태 변경", Toast.LENGTH_SHORT).show()
+        }
+
+
     }
 
     override fun getItemCount() = newsList.size
 
     fun updateData(newNewsList: List<NewsItem>) {
-        (newsList as ArrayList).clear()
-        (newsList as ArrayList).addAll(newNewsList)
+
+        newsList = newNewsList
         notifyDataSetChanged()
     }
 }

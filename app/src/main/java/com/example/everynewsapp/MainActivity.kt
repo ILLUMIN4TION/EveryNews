@@ -1,15 +1,22 @@
 package com.example.everynewsapp
 
-import android.content.Intent // Intent import 추가
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.everynewsapp.databinding.ActivityMainBinding
+import com.example.everynewsapp.news.repository.NewsRepository
 import com.example.everynewsapp.news.model.NewsItem
 import com.example.everynewsapp.news.network.NaverNewsApi
+import com.example.everynewsapp.news.database.AppDatabase // NewsDatabase import 추가
+import com.example.everynewsapp.news.viewModel.NewsDetailViewModel
+import com.example.everynewsapp.news.viewModel.NewsDetailViewModelFactory
+
+
 import com.example.everynewsapp.ui.NewsAdapter
 import com.example.everynewsapp.ui.TrendingNewsAdapter
 import com.google.android.material.chip.Chip
@@ -18,43 +25,46 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
-    private var newsList = mutableListOf<NewsItem>()
-    private var trendingNewsList = mutableListOf<NewsItem>()
-
     private lateinit var newsAdapter: NewsAdapter
     private lateinit var trendingNewsAdapter: TrendingNewsAdapter
+    private lateinit var newsDetailViewModel: NewsDetailViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // ★★★ 1번 문제 해결: NewsRepository 생성자 매개변수 수정 ★★★
+        val database = AppDatabase.getDatabase(applicationContext)
+        val newsDao = database.scrappedNewsDao()
+        val newsRepository = NewsRepository(newsDao)
+
+        val viewModelFactory = NewsDetailViewModelFactory(newsRepository)
+        newsDetailViewModel = ViewModelProvider(this, viewModelFactory).get(NewsDetailViewModel::class.java)
+
         setupRecyclerView()
         setupEventListeners()
 
-        fetchNews("IT")
+        fetchDefaultNews("최신 뉴스")
+        fetchTrendingNews("테크")
     }
 
     private fun setupRecyclerView() {
-        newsAdapter = NewsAdapter(newsList)
+        // 이제 emptyList()를 전달하지 않아도 됩니다.
+        newsAdapter = NewsAdapter(viewModel = newsDetailViewModel)
         binding.rvDefaultNews.adapter = newsAdapter
         binding.rvDefaultNews.layoutManager = LinearLayoutManager(this)
 
-        trendingNewsAdapter = TrendingNewsAdapter(trendingNewsList)
+        trendingNewsAdapter = TrendingNewsAdapter(emptyList())
         binding.rvTrendingNews.adapter = trendingNewsAdapter
         binding.rvTrendingNews.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
     }
 
-    // --- 이 함수가 수정되었습니다 ---
     private fun setupEventListeners() {
         binding.bottomNavigationView.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.navigation_home -> {
-                    // 현재 화면이므로 아무것도 하지 않음
-                    true
-                }
-                R.id.navigation_recommend -> { // '추천 뉴스' ID로 변경되었을 수 있습니다.
+                R.id.navigation_home -> true
+                R.id.navigation_recommend -> {
                     val intent = Intent(this, RecommendActivity::class.java)
                     startActivity(intent)
                     true
@@ -75,19 +85,28 @@ class MainActivity : AppCompatActivity() {
 
         binding.chipGroupCategory.findViewById<Chip>(R.id.chipPolitics).setOnClickListener {
             Toast.makeText(this, "정치 카테고리 선택", Toast.LENGTH_SHORT).show()
-            fetchNews("정치")
+            fetchDefaultNews("정치")
         }
     }
 
-    private fun fetchNews(query: String) {
+    private fun fetchDefaultNews(query: String) {
         lifecycleScope.launch {
             val fetchedItems = NaverNewsApi.fetchNews(query)
-
             if (fetchedItems != null) {
                 newsAdapter.updateData(fetchedItems)
+            } else {
+                Log.e("MainActivity", "기본 뉴스 불러오기 실패 또는 결과 없음")
+            }
+        }
+    }
+
+    private fun fetchTrendingNews(query: String) {
+        lifecycleScope.launch {
+            val fetchedItems = NaverNewsApi.fetchNews(query)
+            if (fetchedItems != null) {
                 trendingNewsAdapter.updateData(fetchedItems)
             } else {
-                Log.e("MainActivity", "뉴스 불러오기 실패 또는 결과 없음")
+                Log.e("MainActivity", "트렌딩 뉴스 불러오기 실패 또는 결과 없음")
             }
         }
     }
