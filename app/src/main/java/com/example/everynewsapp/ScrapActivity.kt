@@ -8,14 +8,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.everynewsapp.databinding.ActivityScrapBinding
 import com.example.everynewsapp.news.repository.NewsRepository
 import com.example.everynewsapp.news.database.AppDatabase
-import com.example.everynewsapp.news.viewModel.NewsDetailViewModelFactory
-import com.example.everynewsapp.news.viewModel.ViewModels
+import com.example.everynewsapp.news.viewModel.ScrappedNewsViewModel
+import com.example.everynewsapp.news.viewModel.ScrappedNewsViewModelFactory
 import com.example.everynewsapp.ui.ScrappedNewsAdapter
 
 class ScrapActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityScrapBinding
-    private lateinit var scrappedNewsViewModel: ViewModels.ScrappedNewsViewModel
+    private lateinit var scrappedNewsViewModel: ScrappedNewsViewModel // ScrappedNewsViewModel로 변경
     private lateinit var scrappedNewsAdapter: ScrappedNewsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,24 +23,28 @@ class ScrapActivity : AppCompatActivity() {
         binding = ActivityScrapBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 현재 탭을 스크랩으로 설정
         binding.bottomNavigationView.selectedItemId = R.id.navigation_scrap
 
-        // ★★★ 뷰모델 초기화 및 데이터 로드 로직 추가 ★★★
+        // 1. 데이터베이스, DAO, Repository 초기화
         val database = AppDatabase.getDatabase(applicationContext)
         val newsDao = database.scrappedNewsDao()
         val newsRepository = NewsRepository(newsDao)
-        val viewModelFactory = NewsDetailViewModelFactory(newsRepository)
-        scrappedNewsViewModel = ViewModelProvider(this, viewModelFactory).get(ViewModels.ScrappedNewsViewModel::class.java)
 
+        // 2. ViewModel Factory 초기화
+        val viewModelFactory = ScrappedNewsViewModelFactory(newsRepository)
+
+        // 3. ViewModel 초기화 (팩토리를 사용)
+        scrappedNewsViewModel = ViewModelProvider(this, viewModelFactory).get(ScrappedNewsViewModel::class.java)
+
+        // 4. RecyclerView 및 어댑터 설정
         setupRecyclerView()
 
-        // LiveData를 관찰하여 UI 업데이트
+        // 5. LiveData를 관찰하여 UI 업데이트
         scrappedNewsViewModel.scrappedNews.observe(this) { scrappedList ->
             scrappedNewsAdapter.updateData(scrappedList)
         }
 
-        // ★★★ 기존 바텀 네비게이션 뷰 리스너는 그대로 유지 ★★★
+        // 6. BottomNavigationView 리스너 설정
         binding.bottomNavigationView.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.navigation_home -> {

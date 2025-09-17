@@ -1,16 +1,18 @@
-//package com.example.everynewsapp.news.viewmodel
-//
-//import androidx.lifecycle.ViewModel
-//import androidx.lifecycle.ViewModelProvider
-//import com.example.everynewsapp.news.repository.NewsRepository
-//import com.example.everynewsapp.news.viewModel.ViewModels
-//
-//class ScrappedNewsViewModelFactory(private val repository: NewsRepository) : ViewModelProvider.Factory {
-//    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-//        if (modelClass.isAssignableFrom(ViewModels.ScrappedNewsViewModel::class.java)) {
-//            @Suppress("UNCHECKED_CAST")
-//            return ViewModels().(repository) as T //
-//        }
-//        throw IllegalArgumentException("Unknown ViewModel class")
-//    }
-//}
+package com.example.everynewsapp.news.viewModel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.example.everynewsapp.news.repository.NewsRepository
+
+class ScrappedNewsViewModelFactory(private val repository: NewsRepository) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        // 요청된 클래스가 ScrappedNewsViewModel인지 확인
+        if (modelClass.isAssignableFrom(ScrappedNewsViewModel::class.java)) {
+            // 맞다면 ScrappedNewsViewModel 인스턴스를 생성하여 반환
+            @Suppress("UNCHECKED_CAST")
+            return ScrappedNewsViewModel(repository) as T
+        }
+        // 요청된 클래스가 다르면 예외를 발생
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}

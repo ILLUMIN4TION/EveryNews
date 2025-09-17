@@ -16,14 +16,16 @@ class ScrappedNewsAdapter(private var newsList: List<ScrappedNewsItem> = emptyLi
     RecyclerView.Adapter<ScrappedNewsAdapter.ScrappedNewsViewHolder>() {
 
     class ScrappedNewsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val title: TextView = view.findViewById(R.id.tv_small_news_title)
-        val thumbnail: ImageView = view.findViewById(R.id.iv_small_news_thumbnail)
+        val title: TextView = view.findViewById(R.id.tv_default_news_title)
+
+        val desc: TextView = view.findViewById(R.id.tv_default_news_description)
+        val thumbnail: ImageView = view.findViewById(R.id.iv_defaul_news_thumbnail)
         // 스크랩 버튼은 스크랩 화면에서 필요 없을 수 있으므로 제거
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScrappedNewsViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_news_small, parent, false)
+            .inflate(R.layout.item_news, parent, false)
         return ScrappedNewsViewHolder(view)
     }
 
@@ -32,6 +34,8 @@ class ScrappedNewsAdapter(private var newsList: List<ScrappedNewsItem> = emptyLi
 
         // 제목 표시
         holder.title.text = item.title
+        holder.desc.text = item.description
+
 
         // 썸네일 이미지 로드
         if (!item.imageUrl.isNullOrEmpty()) {
