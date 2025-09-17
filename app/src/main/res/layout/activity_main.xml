@@ -158,6 +158,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
-        android:background="#1F1F1F"/>
+        android:background="?attr/colorSurface"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
