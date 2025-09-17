@@ -1,16 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Base.Theme.EveryNewsApp" parent="Theme.Material3.DayNight.NoActionBar">
-    </style>
-
-    <style name="Theme.EveryNewsApp" parent="Base.Theme.EveryNewsApp">
-        <item name="myTextColor">@color/white</item>
-        <item name="mySubTextColor">@color/light_gray</item>
-        <item name="myBackgroundColor">@color/dark_gray</item>
-    </style>
-
-    <style name="Theme.EveryNewsApp.Light" parent="Theme.Material3.Light.NoActionBar">
-        <item name="myTextColor">@color/black</item>
-        <item name="mySubTextColor">@color/dark_gray</item>
-        <item name="myBackgroundColor">@color/white</item>
+    <style name="Theme.EveryNewsApp" parent="Theme.Material3.Light.NoActionBar">
     </style>
 </resources>
