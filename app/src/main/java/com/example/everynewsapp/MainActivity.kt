@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         setupEventListeners()
 
         fetchDefaultNews("최신 뉴스")
-        fetchTrendingNews("테크")
+        fetchTrendingNews("인기 뉴스")
     }
 
     private fun setupRecyclerView() {
