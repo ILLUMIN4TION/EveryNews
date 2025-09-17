@@ -81,34 +81,7 @@
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
-            <TextView
-                android:layout_margin="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="최신 뉴스"
-                android:textColor="@color/white"
-                android:textStyle="bold"
-                android:textSize="25dp"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_default_news"
-                android:layout_gravity="center"
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:clipToPadding="false"
-
-                android:layout_height="wrap_content"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@drawable/dotted_line"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"/>
-
+            <!-- "인기 뉴스" 섹션 (위로 이동됨) -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -121,20 +94,16 @@
                     android:layout_height="wrap_content"
                     android:text="인기 뉴스"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="25dp"
                     android:textStyle="bold"
-                    android:layout_alignParentStart="true"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="See All"
-                    android:textColor="#A0A0A0"
-                    android:textSize="14sp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"/>
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="0dp"/>
+
             </RelativeLayout>
 
+            <!-- rv_trending_news (위로 이동됨) -->
             <androidx.recyclerview.widget.RecyclerView
+                android:layout_marginHorizontal="15dp"
                 android:id="@+id/rv_trending_news"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -145,6 +114,39 @@
                 android:clipToPadding="false"
                 tools:listitem="@layout/item_news_small"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/dotted_line"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- "최신 뉴스" 섹션 (아래로 이동됨) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="최신 뉴스"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:layout_margin="10dp"
+                android:layout_marginStart="6dp" />
+
+
+            <!-- rv_default_news (아래로 이동됨) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_default_news"
+                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:clipToPadding="false"
+                android:layout_height="wrap_content"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

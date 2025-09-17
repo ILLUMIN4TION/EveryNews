@@ -23,7 +23,7 @@ object NaverNewsApi {
     private const val CLIENT_SECRET = "cCy55viSiE"
 
     // 콜백 방식 대신 코루틴을 위한 suspend 함수로 변경
-    suspend fun fetchNews(query: String): List<NewsItem>? {
+    suspend fun fetchNews(query: String, display: Int = 10, start: Int = 1): List<NewsItem>? {
         // withContext를 사용해 백그라운드 스레드에서 네트워크 작업을 수행
         return withContext(Dispatchers.IO) {
             try {

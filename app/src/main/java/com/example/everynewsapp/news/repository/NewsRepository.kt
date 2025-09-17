@@ -55,4 +55,7 @@ class NewsRepository(/*private val viewedNewsDao: ViewedNewsDao,*/ private val s
     suspend fun removeScrap(link: String) = scrappedNewsDao.deleteScrappedNews(link)
 
     suspend fun isScrapped(link: String): Boolean = scrappedNewsDao.getScrappedNewsByLink(link) != null //스크랩한 뉴스만 보여주기 위한 메서드입니다.
+
+
+
 }

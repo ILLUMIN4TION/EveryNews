@@ -16,4 +16,7 @@ class ScrappedNewsViewModel(private val repository: NewsRepository) : ViewModel(
      * UI는 이 LiveData를 관찰하여 데이터 변경 시 자동으로 화면을 업데이트합니다.
      */
     val scrappedNews: LiveData<List<ScrappedNewsItem>> = repository.getAllScrappedNews().asLiveData()
+
+
+
 }
