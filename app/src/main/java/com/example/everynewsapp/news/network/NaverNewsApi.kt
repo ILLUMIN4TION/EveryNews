@@ -48,28 +48,27 @@ object NaverNewsApi {
 
                 // coroutineScope를 사용해 모든 이미지 크롤링 작업을 동시에 병렬로 처리
                 coroutineScope {
-                    koreanNewsItems.map { newsItem -> // newsItem은 NewsItem 타입
+                    koreanNewsItems.map { newsItem ->
                         async {
-                            // newsLink는 크롤링할 원본 기사의 URL (http 또는 https로 시작해야 함)
                             val newsLink = newsItem.originallink.ifEmpty { newsItem.link }
 
-                            // newsLink가 비어있거나 유효한 URL 형식이 아니면 크롤링을 건너뛸 수 있도록 방어 코드 추가
                             if (newsLink.isEmpty() || !(newsLink.startsWith("http://") || newsLink.startsWith("https://"))) {
                                 Log.w("NaverNewsApi", "Invalid or empty newsLink, skipping crawling: $newsLink")
-                                return@async newsItem // 이미지 없이 기존 newsItem 반환
+                                return@async newsItem.copy(imageUrl = null)
                             }
 
                             val htmlContent = htmlFetcher.fetchHtml(newsLink)
 
-                            // 여기가 54번째 줄 근처입니다.
-                            val imageUrl = htmlContent?.let { contentOfHtml -> // it 대신 명시적인 이름 사용 (가독성 향상)
-                                // 수정된 부분: 두 번째 인자로 newsLink (baseUrl)를 전달합니다.
+                            val imageUrl = htmlContent?.let { contentOfHtml ->
                                 imageCrawler.extractImageUrl(contentOfHtml, newsLink)
                             }
 
+                            // 크롤링 실패 시 imageUrl은 null
                             newsItem.copy(imageUrl = imageUrl)
                         }
                     }.map { it.await() }
+                        // ✅ 여기서 필터링: imageUrl이 null인 뉴스는 제외
+                        .filter { it.imageUrl != null }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
