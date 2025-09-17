@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var newsDetailViewModel: NewsDetailViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeManager.applyTheme(this)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
