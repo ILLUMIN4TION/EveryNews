@@ -16,8 +16,9 @@ import com.example.everynewsapp.R
 import com.example.everynewsapp.news.model.ScrappedNewsItem
 import android.text.Html
 import com.example.everynewsapp.news.viewModel.NewsDetailViewModel
+import com.example.everynewsapp.news.viewModel.ScrappedNewsViewModel
 
-class ScrappedNewsAdapter(private var newsList: List<ScrappedNewsItem> = emptyList(), private val viewModel: NewsDetailViewModel) :
+class ScrappedNewsAdapter(private var newsList: List<ScrappedNewsItem> = emptyList(), private val viewModel: ScrappedNewsViewModel) :
     RecyclerView.Adapter<ScrappedNewsAdapter.ScrappedNewsViewHolder>() {
 
     class ScrappedNewsViewHolder(view: View) : RecyclerView.ViewHolder(view) {

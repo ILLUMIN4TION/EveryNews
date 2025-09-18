@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.everynewsapp.databinding.ActivityScrapBinding
 import com.example.everynewsapp.news.repository.NewsRepository
 import com.example.everynewsapp.news.database.AppDatabase
+import com.example.everynewsapp.news.viewModel.NewsDetailViewModel
 import com.example.everynewsapp.news.viewModel.ScrappedNewsViewModel
 import com.example.everynewsapp.news.viewModel.ScrappedNewsViewModelFactory
 import com.example.everynewsapp.ui.ScrappedNewsAdapter
@@ -66,7 +67,7 @@ class ScrapActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        scrappedNewsAdapter = ScrappedNewsAdapter()
+        scrappedNewsAdapter = ScrappedNewsAdapter(viewModel = scrappedNewsViewModel)
         binding.rvScrappedNews.adapter = scrappedNewsAdapter
         binding.rvScrappedNews.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
     }

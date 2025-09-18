@@ -52,6 +52,19 @@ class NewsRepository(/*private val viewedNewsDao: ViewedNewsDao,*/ private val s
         scrappedNewsDao.insertScrappedNews(scrappedItem)
     }
 
+    suspend fun addScrap(newsItem: ScrappedNewsItem) {
+        val scrappedItem = ScrappedNewsItem( /* ... ViewedNewsItem과 같이 NewsIem -> 스크랩 뉴스 아이템으로 변경합니다 ... */
+            link = newsItem.originallink!!.ifEmpty { newsItem.link },
+            title = newsItem.title,
+            originallink = newsItem.originallink,
+            description = newsItem.description,
+            pubDate = newsItem.pubDate,
+            imageUrl = newsItem.imageUrl,
+            scrappedAt = System.currentTimeMillis()
+        )
+        scrappedNewsDao.insertScrappedNews(scrappedItem)
+    }
+
     suspend fun removeScrap(link: String) = scrappedNewsDao.deleteScrappedNews(link)
 
     suspend fun isScrapped(link: String): Boolean = scrappedNewsDao.getScrappedNewsByLink(link) != null //스크랩한 뉴스만 보여주기 위한 메서드입니다.
