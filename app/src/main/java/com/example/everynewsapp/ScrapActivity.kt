@@ -20,6 +20,7 @@ class ScrapActivity : AppCompatActivity() {
     private lateinit var scrappedNewsAdapter: ScrappedNewsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeManager.applyTheme(this)
         super.onCreate(savedInstanceState)
         binding = ActivityScrapBinding.inflate(layoutInflater)
         setContentView(binding.root)

@@ -10,6 +10,7 @@ class RecommendActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRecommendBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeManager.applyTheme(this)
         super.onCreate(savedInstanceState)
         binding = ActivityRecommendBinding.inflate(layoutInflater)
         setContentView(binding.root)

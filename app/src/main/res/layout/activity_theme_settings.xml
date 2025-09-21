@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?attr/colorSurface"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="앱 화면 설정"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="24dp"/>
+
+    <RadioGroup
+        android:id="@+id/rg_theme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/rb_light"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="라이트 모드"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:padding="16dp"/>
+
+        <RadioButton
+            android:id="@+id/rb_dark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="다크 모드"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:padding="16dp"/>
+    </RadioGroup>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <Button
+        android:id="@+id/btn_save_theme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="저장하기"/>
+</LinearLayout>
