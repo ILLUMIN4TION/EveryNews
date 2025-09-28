@@ -69,6 +69,14 @@ class NewsRepository(/*private val viewedNewsDao: ViewedNewsDao,*/ private val s
 
     suspend fun isScrapped(link: String): Boolean = scrappedNewsDao.getScrappedNewsByLink(link) != null //스크랩한 뉴스만 보여주기 위한 메서드입니다.
 
+    // --- ViewModel이 정상 작동하기 위해 아래 함수들을 추가합니다 ---
 
+    suspend fun getNewsByLink(link: String): ScrappedNewsItem? {
+        return scrappedNewsDao.getScrappedNewsByLink(link)
+    }
+
+    suspend fun removeScrap(item: ScrappedNewsItem) {
+        scrappedNewsDao.delete(item)
+    }
 
 }

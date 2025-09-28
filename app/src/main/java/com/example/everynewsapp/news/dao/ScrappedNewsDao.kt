@@ -1,6 +1,7 @@
 package com.example.everynewsapp.news.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -11,6 +12,11 @@ import kotlinx.coroutines.flow.Flow
 interface ScrappedNewsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertScrappedNews(item: ScrappedNewsItem)
+
+    // --- 이 함수를 추가합니다 ---
+    @Delete
+    suspend fun delete(item: ScrappedNewsItem)
+    // --- 여기까지 ---
 
     @Query("SELECT * FROM scrapped_news ORDER BY scrappedAt DESC")
     fun getAllScrappedNews(): Flow<List<ScrappedNewsItem>>
