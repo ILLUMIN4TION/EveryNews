@@ -39,7 +39,7 @@ class NewsRepository(/*private val viewedNewsDao: ViewedNewsDao,*/ private val s
     // 스크랩 관련
     fun getAllScrappedNews(): Flow<List<ScrappedNewsItem>> = scrappedNewsDao.getAllScrappedNews()
 
-    suspend fun addScrap(newsItem: NewsItem) {
+    /*suspend fun addScrap(newsItem: NewsItem) {
         val scrappedItem = ScrappedNewsItem( /* ... ViewedNewsItem과 같이 NewsIem -> 스크랩 뉴스 아이템으로 변경합니다 ... */
             link = newsItem.originallink.ifEmpty { newsItem.link },
             title = newsItem.title,
@@ -63,6 +63,10 @@ class NewsRepository(/*private val viewedNewsDao: ViewedNewsDao,*/ private val s
             scrappedAt = System.currentTimeMillis()
         )
         scrappedNewsDao.insertScrappedNews(scrappedItem)
+    }*/
+
+    suspend fun addScrap(item: ScrappedNewsItem) {
+        scrappedNewsDao.insertScrappedNews(item)
     }
 
     suspend fun removeScrap(link: String) = scrappedNewsDao.deleteScrappedNews(link)
@@ -71,7 +75,7 @@ class NewsRepository(/*private val viewedNewsDao: ViewedNewsDao,*/ private val s
 
     // --- ViewModel이 정상 작동하기 위해 아래 함수들을 추가합니다 ---
 
-    suspend fun getNewsByLink(link: String): ScrappedNewsItem? {
+    suspend fun getScrappedNewsByLink(link: String): ScrappedNewsItem? {
         return scrappedNewsDao.getScrappedNewsByLink(link)
     }
 

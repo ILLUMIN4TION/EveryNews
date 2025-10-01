@@ -6,18 +6,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.everynewsapp.databinding.ActivityScrapBinding
-import com.example.everynewsapp.news.repository.NewsRepository
 import com.example.everynewsapp.news.database.AppDatabase
-import com.example.everynewsapp.news.viewModel.NewsDetailViewModel
-import com.example.everynewsapp.news.viewModel.ScrappedNewsViewModel
-import com.example.everynewsapp.news.viewModel.ScrappedNewsViewModelFactory
+import com.example.everynewsapp.news.repository.NewsRepository
+import com.example.everynewsapp.news.viewModel.NewsViewModel
+import com.example.everynewsapp.news.viewModel.NewsViewModelFactory
 import com.example.everynewsapp.ui.ScrappedNewsAdapter
 
 class ScrapActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityScrapBinding
-    private lateinit var scrappedNewsViewModel: ScrappedNewsViewModel // ScrappedNewsViewModel로 변경
     private lateinit var scrappedNewsAdapter: ScrappedNewsAdapter
+    private lateinit var newsViewModel: NewsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyTheme(this)
@@ -27,26 +26,30 @@ class ScrapActivity : AppCompatActivity() {
 
         binding.bottomNavigationView.selectedItemId = R.id.navigation_scrap
 
-        // 1. 데이터베이스, DAO, Repository 초기화
+        // MainActivity와 동일하게 NewsViewModel 초기화
         val database = AppDatabase.getDatabase(applicationContext)
         val newsDao = database.scrappedNewsDao()
         val newsRepository = NewsRepository(newsDao)
+        val viewModelFactory = NewsViewModelFactory(newsRepository, application)
+        newsViewModel = ViewModelProvider(this, viewModelFactory).get(NewsViewModel::class.java)
 
-        // 2. ViewModel Factory 초기화
-        val viewModelFactory = ScrappedNewsViewModelFactory(newsRepository)
-
-        // 3. ViewModel 초기화 (팩토리를 사용)
-        scrappedNewsViewModel = ViewModelProvider(this, viewModelFactory).get(ScrappedNewsViewModel::class.java)
-
-        // 4. RecyclerView 및 어댑터 설정
         setupRecyclerView()
+        setupEventListeners()
 
-        // 5. LiveData를 관찰하여 UI 업데이트
-        scrappedNewsViewModel.scrappedNews.observe(this) { scrappedList ->
+        // 뷰모델의 LiveData를 관찰하여 UI 업데이트
+        newsViewModel.scrappedNewsList.observe(this) { scrappedList ->
             scrappedNewsAdapter.updateData(scrappedList)
         }
+    }
 
-        // 6. BottomNavigationView 리스너 설정
+    private fun setupRecyclerView() {
+        // 어댑터에 초기 빈 리스트와 뷰모델을 전달
+        scrappedNewsAdapter = ScrappedNewsAdapter(mutableListOf(), newsViewModel)
+        binding.rvScrappedNews.adapter = scrappedNewsAdapter
+        binding.rvScrappedNews.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+    }
+
+    private fun setupEventListeners() {
         binding.bottomNavigationView.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.navigation_home -> {
@@ -65,11 +68,5 @@ class ScrapActivity : AppCompatActivity() {
                 else -> false
             }
         }
-    }
-
-    private fun setupRecyclerView() {
-        scrappedNewsAdapter = ScrappedNewsAdapter(viewModel = scrappedNewsViewModel)
-        binding.rvScrappedNews.adapter = scrappedNewsAdapter
-        binding.rvScrappedNews.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
     }
 }

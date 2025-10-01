@@ -6,7 +6,7 @@ import com.example.everynewsapp.news.dao.ScrappedNewsDao
 import com.example.everynewsapp.news.model.ScrappedNewsItem
 //import com.example.everynewsapp.news.model.ViewedNewsItem
 
-@Database(entities = [ScrappedNewsItem::class], version = 2, exportSchema = false)
+@Database(entities = [ScrappedNewsItem::class], version = 1, exportSchema = false)
 abstract class AppDatabase : androidx.room.RoomDatabase() {
 //    abstract fun viewedNewsDao(): ViewedNewsDao
     abstract fun scrappedNewsDao(): ScrappedNewsDao

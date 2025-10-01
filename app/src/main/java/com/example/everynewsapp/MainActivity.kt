@@ -43,7 +43,9 @@ class MainActivity : AppCompatActivity() {
         observeViewModel()
     }
 
+
     private fun setupRecyclerView() {
+        //후행람다 매개변수 , 각 아이템 별로 스크랩 버튼 누르면 람다 문 실행
         newsAdapter = NewsAdapter(mutableListOf()) { newsItem ->
             newsViewModel.toggleScrap(newsItem)
         }
