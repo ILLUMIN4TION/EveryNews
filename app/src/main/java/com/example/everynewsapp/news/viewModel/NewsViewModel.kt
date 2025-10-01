@@ -5,11 +5,13 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.everynewsapp.news.model.NewsItem
 import com.example.everynewsapp.news.model.toScrappedNewsItem // Mapper import
 import com.example.everynewsapp.news.network.NaverNewsApi
 import com.example.everynewsapp.news.repository.NewsRepository
+import com.example.everynewsapp.news.model.ScrappedNewsItem
 import com.example.everynewsapp.ui.LockScreenNewsManager
 import kotlinx.coroutines.launch
 
@@ -23,6 +25,9 @@ class NewsViewModel(
 
     private val _trendingNewsList = MutableLiveData<List<NewsItem>>()
     val trendingNewsList: LiveData<List<NewsItem>> get() = _trendingNewsList
+
+    private val _scrappedNewsList = newsRepository.getAllScrappedNews().asLiveData()
+    val scrappedNewsList: LiveData<List<ScrappedNewsItem>> get() = _scrappedNewsList
 
     private var currentNewsPage = 1
     private val newsDisplayCount = 10
@@ -56,7 +61,6 @@ class NewsViewModel(
             try {
                 val fetchedItems = NaverNewsApi.fetchNews(currentQuery, newsDisplayCount, startItemPosition)
 
-                // fetchedItems가 null이 아닐 때만 처리하도록 수정
                 fetchedItems?.let { items ->
                     if (isLoadMore) {
                         _defaultNewsList.value = _defaultNewsList.value.orEmpty() + items
@@ -67,7 +71,7 @@ class NewsViewModel(
                     if (!isLoadMore && items.isNotEmpty()) {
                         LockScreenNewsManager.saveNews(getApplication(), items[0])
                     }
-                } ?: run { // fetchedItems가 null일 경우
+                } ?: run {
                     if (isLoadMore) currentNewsPage--
                     Log.e("NewsViewModel", "Error fetching default news, result is null")
                 }
@@ -84,29 +88,25 @@ class NewsViewModel(
         viewModelScope.launch {
             try {
                 val fetchedItems = NaverNewsApi.fetchNews(query, display = 15, start = 1)
-
-                // --- 이 부분을 수정합니다 ---
-                // API 결과가 null이면 빈 리스트로 대체하고, 아니면 그대로 사용
                 _trendingNewsList.value = fetchedItems ?: emptyList()
-
             } catch (e: Exception) {
                 Log.e("NewsViewModel", "Error fetching trending news", e)
             }
         }
     }
 
-    // --- 이 함수가 추가되었습니다 ---
+    // ★★★ 스크랩 로직 수정 ★★★
     fun toggleScrap(newsItem: NewsItem) {
         viewModelScope.launch {
-            val existingScrap = newsRepository.getNewsByLink(newsItem.originallink)
+            val link = newsItem.originallink.ifEmpty { newsItem.link }
+            val existingScrap = newsRepository.getScrappedNewsByLink(link)
             if (existingScrap != null) {
                 // 이미 스크랩된 경우: 삭제
                 newsRepository.removeScrap(existingScrap)
             } else {
-                // 스크랩되지 않은 경우: 추가
+                // 스크랩되지 않은 경우: NewsItem을 ScrappedNewsItem으로 변환하여 추가
                 newsRepository.addScrap(newsItem.toScrappedNewsItem())
             }
         }
     }
-    // --- 여기까지 ---
 }

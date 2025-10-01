@@ -2,6 +2,7 @@ package com.example.everynewsapp.ui
 
 import android.content.Intent
 import android.os.Build
+import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,19 +15,13 @@ import coil.load
 import com.example.everynewsapp.NewsDetailActivity
 import com.example.everynewsapp.R
 import com.example.everynewsapp.news.model.ScrappedNewsItem
-import android.text.Html
-import com.example.everynewsapp.news.viewModel.NewsDetailViewModel
-import com.example.everynewsapp.news.viewModel.ScrappedNewsViewModel
+import com.example.everynewsapp.news.model.toNewsItem
+import com.example.everynewsapp.news.viewModel.NewsViewModel
 
-class ScrappedNewsAdapter(private var newsList: List<ScrappedNewsItem> = emptyList(), private val viewModel: ScrappedNewsViewModel) :
-    RecyclerView.Adapter<ScrappedNewsAdapter.ScrappedNewsViewHolder>() {
-
-    class ScrappedNewsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val title: TextView = view.findViewById(R.id.tv_default_news_title)
-        val desc: TextView = view.findViewById(R.id.tv_default_news_description)
-        val thumbnail: ImageView = view.findViewById(R.id.iv_defaul_news_thumbnail)
-        val scrapButton: ImageView = view.findViewById(R.id.imv_news_scrap)
-    }
+class ScrappedNewsAdapter(
+    private val newsList: MutableList<ScrappedNewsItem>,
+    private val newsViewModel: NewsViewModel
+) : RecyclerView.Adapter<ScrappedNewsAdapter.ScrappedNewsViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScrappedNewsViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -37,11 +32,9 @@ class ScrappedNewsAdapter(private var newsList: List<ScrappedNewsItem> = emptyLi
     override fun onBindViewHolder(holder: ScrappedNewsViewHolder, position: Int) {
         val item = newsList[position]
 
-        // ★★★ HTML 태그를 제거하고 바로 TextView에 설정 ★★★
         holder.title.text = item.title.stripHtml()
         holder.desc.text = item.description?.stripHtml()
 
-        // 썸네일 이미지 로드
         if (!item.imageUrl.isNullOrEmpty()) {
             holder.thumbnail.load(item.imageUrl) {
                 crossfade(true)
@@ -62,25 +55,32 @@ class ScrappedNewsAdapter(private var newsList: List<ScrappedNewsItem> = emptyLi
         }
 
         holder.scrapButton.setOnClickListener {
-            viewModel.toggleScrap(item)
-            Toast.makeText(holder.itemView.context, "스크랩 상태 변경", Toast.LENGTH_SHORT).show()
+            // DB에서 삭제
+            newsViewModel.toggleScrap(item.toNewsItem())
+
+            // 삭제가 성공하면 LiveData가 업데이트되고,
+            // ScrapActivity에서 관찰하여 updateData()가 호출되며 화면에서 자동으로 사라집니다.
+            Toast.makeText(holder.itemView.context, "스크랩 해제", Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun getItemCount() = newsList.size
 
     fun updateData(newNewsList: List<ScrappedNewsItem>) {
-        newsList = newNewsList
+        newsList.clear()
+        newsList.addAll(newNewsList)
         notifyDataSetChanged()
     }
-}
 
-// String에 HTML 태그를 제거하는 확장 함수
-private fun String.stripHtml(): String {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY).toString()
-    } else {
-        @Suppress("DEPRECATION")
-        Html.fromHtml(this).toString()
+    private fun String?.stripHtml(): String {
+        if (this == null) return ""
+        return Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY).toString()
+    }
+
+    class ScrappedNewsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val title: TextView = view.findViewById(R.id.tv_default_news_title)
+        val desc: TextView = view.findViewById(R.id.tv_default_news_description)
+        val thumbnail: ImageView = view.findViewById(R.id.iv_defaul_news_thumbnail)
+        val scrapButton: ImageView = view.findViewById(R.id.imv_news_scrap)
     }
 }
