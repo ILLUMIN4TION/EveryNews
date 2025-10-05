@@ -28,7 +28,8 @@ object NaverNewsApi {
         return withContext(Dispatchers.IO) {
             try {
                 val encodedQuery = URLEncoder.encode(query, "UTF-8")
-                val url = "https://openapi.naver.com/v1/search/news.json?query=$encodedQuery&display=10&start=1&sort=date"
+                // 수정된 부분: display와 start 매개변수를 URL에 적용
+                val url = "https://openapi.naver.com/v1/search/news.json?query=$encodedQuery&display=$display&start=$start&sort=date"
 
                 val request = Request.Builder()
                     .url(url)

@@ -15,6 +15,4 @@ class ScrappedNewsViewModelFactory(private val repository: NewsRepository) : Vie
         // 요청된 클래스가 다르면 예외를 발생
         throw IllegalArgumentException("Unknown ViewModel class")
     }
-
-
 }

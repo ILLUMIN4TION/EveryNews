@@ -28,12 +28,15 @@ class NewsAdapter(
 
     override fun getItemCount(): Int = newsList.size
 
+
+
     fun updateData(newNewsList: List<NewsItem>) {
         newsList.clear()
         newsList.addAll(newNewsList)
         notifyDataSetChanged()
     }
 
+    // ★★★ 무한 스크롤 시 새 데이터를 추가만 함 (loadMore 시 사용) ★★★
     fun addData(newNewsList: List<NewsItem>) {
         val startPosition = newsList.size
         newsList.addAll(newNewsList)

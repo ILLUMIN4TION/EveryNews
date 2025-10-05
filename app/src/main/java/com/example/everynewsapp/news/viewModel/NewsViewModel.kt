@@ -8,10 +8,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.everynewsapp.news.model.NewsItem
-import com.example.everynewsapp.news.model.toScrappedNewsItem // Mapper import
+import com.example.everynewsapp.news.model.ScrappedNewsItem
+import com.example.everynewsapp.news.model.toScrappedNewsItem
 import com.example.everynewsapp.news.network.NaverNewsApi
 import com.example.everynewsapp.news.repository.NewsRepository
-import com.example.everynewsapp.news.model.ScrappedNewsItem
 import com.example.everynewsapp.ui.LockScreenNewsManager
 import kotlinx.coroutines.launch
 
@@ -29,8 +29,16 @@ class NewsViewModel(
     private val _scrappedNewsList = newsRepository.getAllScrappedNews().asLiveData()
     val scrappedNewsList: LiveData<List<ScrappedNewsItem>> get() = _scrappedNewsList
 
-    private var currentNewsPage = 1
-    private val newsDisplayCount = 10
+    private val _loadMoreEvent = MutableLiveData<List<NewsItem>>()
+    val loadMoreEvent: LiveData<List<NewsItem>> get() = _loadMoreEvent
+
+    private val _isLoadInProgress = MutableLiveData(false)
+    val isLoadInProgress: LiveData<Boolean> get() = _isLoadInProgress
+
+
+    private var currentDefaultNewsPage = 1
+    private val defaultNewsDisplayCount = 20
+    private val trendingNewsDisplayCount = 10
     private var currentQuery = "최신"
     private var isLoading = false
 
@@ -41,29 +49,30 @@ class NewsViewModel(
 
     fun searchNewsByCategory(query: String) {
         currentQuery = query
-        currentNewsPage = 1
+        currentDefaultNewsPage = 1
         _defaultNewsList.value = emptyList()
         fetchDefaultNews(false)
     }
 
     fun loadMoreDefaultNews() {
         if (isLoading) return
-        currentNewsPage++
+        currentDefaultNewsPage++
         fetchDefaultNews(true)
     }
 
     private fun fetchDefaultNews(isLoadMore: Boolean) {
         if (isLoading) return
         isLoading = true
-        val startItemPosition = (currentNewsPage - 1) * newsDisplayCount + 1
+        _isLoadInProgress.value = true
+        val startItemPosition = (currentDefaultNewsPage - 1) * defaultNewsDisplayCount + 1
 
         viewModelScope.launch {
             try {
-                val fetchedItems = NaverNewsApi.fetchNews(currentQuery, newsDisplayCount, startItemPosition)
+                val fetchedItems = NaverNewsApi.fetchNews(currentQuery, defaultNewsDisplayCount, startItemPosition)
 
                 fetchedItems?.let { items ->
                     if (isLoadMore) {
-                        _defaultNewsList.value = _defaultNewsList.value.orEmpty() + items
+                        _loadMoreEvent.value = items
                     } else {
                         _defaultNewsList.value = items
                     }
@@ -72,14 +81,15 @@ class NewsViewModel(
                         LockScreenNewsManager.saveNews(getApplication(), items[0])
                     }
                 } ?: run {
-                    if (isLoadMore) currentNewsPage--
+                    if (isLoadMore) currentDefaultNewsPage--
                     Log.e("NewsViewModel", "Error fetching default news, result is null")
                 }
             } catch (e: Exception) {
                 Log.e("NewsViewModel", "Error fetching default news", e)
-                if (isLoadMore) currentNewsPage--
+                if (isLoadMore) currentDefaultNewsPage--
             } finally {
                 isLoading = false
+                _isLoadInProgress.value = false
             }
         }
     }
@@ -87,7 +97,7 @@ class NewsViewModel(
     private fun fetchTrendingNews(query: String) {
         viewModelScope.launch {
             try {
-                val fetchedItems = NaverNewsApi.fetchNews(query, display = 15, start = 1)
+                val fetchedItems = NaverNewsApi.fetchNews(query, display = trendingNewsDisplayCount, start = 1)
                 _trendingNewsList.value = fetchedItems ?: emptyList()
             } catch (e: Exception) {
                 Log.e("NewsViewModel", "Error fetching trending news", e)
@@ -95,18 +105,26 @@ class NewsViewModel(
         }
     }
 
-    // ★★★ 스크랩 로직 수정 ★★★
+    // 메인 화면에서 스크랩 추가/삭제를 처리하는 기존 함수 (NewsItem 기반)
     fun toggleScrap(newsItem: NewsItem) {
         viewModelScope.launch {
-            val link = newsItem.originallink.ifEmpty { newsItem.link }
-            val existingScrap = newsRepository.getScrappedNewsByLink(link)
+            val normalizedLink = newsItem.originallink.ifEmpty { newsItem.link }
+            val existingScrap = newsRepository.getScrappedNewsByLink(normalizedLink)
             if (existingScrap != null) {
-                // 이미 스크랩된 경우: 삭제
                 newsRepository.removeScrap(existingScrap)
+                Log.d("ScrapToggle", "Scrap REMOVED (from toggle) for link: $normalizedLink")
             } else {
-                // 스크랩되지 않은 경우: NewsItem을 ScrappedNewsItem으로 변환하여 추가
                 newsRepository.addScrap(newsItem.toScrappedNewsItem())
+                Log.d("ScrapToggle", "Scrap ADDED (from toggle) for link: $normalizedLink")
             }
+        }
+    }
+
+    // ★★★ 스크랩 탭에서 해제 전용 함수 추가 (ScrappedNewsItem 객체 기반) ★★★
+    fun removeScrap(scrappedItem: ScrappedNewsItem) {
+        viewModelScope.launch {
+            newsRepository.removeScrap(scrappedItem)
+            Log.d("ScrapToggle", "Scrap REMOVED (from Scrapped Tab) for link: ${scrappedItem.link}")
         }
     }
 }

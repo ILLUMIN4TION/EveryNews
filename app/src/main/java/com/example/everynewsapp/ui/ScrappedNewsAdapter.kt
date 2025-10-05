@@ -55,12 +55,10 @@ class ScrappedNewsAdapter(
         }
 
         holder.scrapButton.setOnClickListener {
-            // DB에서 삭제
-            newsViewModel.toggleScrap(item.toNewsItem())
-
-            // 삭제가 성공하면 LiveData가 업데이트되고,
-            // ScrapActivity에서 관찰하여 updateData()가 호출되며 화면에서 자동으로 사라집니다.
-            Toast.makeText(holder.itemView.context, "스크랩 해제", Toast.LENGTH_SHORT).show()
+            // ★★★ 핵심: NewsViewModel의 removeScrap 함수를 직접 호출합니다. ★★★
+            newsViewModel.removeScrap(item)
+            // 삭제가 성공하면 LiveData를 통해 자동으로 목록이 갱신되어 사라집니다.
+            Toast.makeText(holder.itemView.context, "스크랩 해제됨", Toast.LENGTH_SHORT).show()
         }
     }
 
