@@ -94,7 +94,7 @@ class NewsViewModel(
         }
     }
 
-    private fun fetchTrendingNews(query: String) {
+    public fun fetchTrendingNews(query: String) {
         viewModelScope.launch {
             try {
                 val fetchedItems = NaverNewsApi.fetchNews(query, display = trendingNewsDisplayCount, start = 1)

@@ -43,6 +43,10 @@ android {
 dependencies {
     implementation("org.jsoup:jsoup:1.21.2")
 
+
+    //화면을 위로 스와이프 하면 뉴스 조회
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
     // Room (버전 카탈로그 사용)
     implementation(libs.androidx.room.runtime)
     kapt(libs.androidx.room.compiler)

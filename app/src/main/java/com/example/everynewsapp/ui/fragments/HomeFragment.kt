@@ -7,20 +7,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels // ★★★ Activity ViewModel 공유를 위해 사용 ★★★
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.everynewsapp.R
 import com.example.everynewsapp.databinding.FragmentHomeBinding
 import com.example.everynewsapp.news.viewModel.NewsViewModel
 import com.google.android.material.chip.Chip
+import androidx.core.widget.NestedScrollView
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    // ★★★ Activity ViewModel 공유 ★★★
+    // Activity ViewModel 공유
     private val newsViewModel: NewsViewModel by activityViewModels()
 
     private lateinit var defaultNewsAdapter: NewsAdapter
@@ -30,9 +31,6 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // 기존 activity_main.xml의 콘텐츠를 fragment_home.xml로 옮겨서 사용합니다.
-        // 임시로 activity_main.xml의 바인딩 클래스를 사용하여 테스트합니다.
-        // 실제로는 fragment_home.xml을 만들어야 합니다.
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -43,6 +41,20 @@ class HomeFragment : Fragment() {
         setupRecyclerViews()
         setupEventListeners()
         observeViewModel()
+
+        // ★★★ SwipeRefreshLayout 초기 설정 ★★★
+        setupSwipeRefresh()
+    }
+
+    private fun setupSwipeRefresh() {
+        // SwipeRefreshLayout 새로고침 리스너
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            // 칩이나 카테고리 상태에 관계없이 초기 쿼리("최신")로 새로고침 요청
+            newsViewModel.searchNewsByCategory("최신")
+            // 인기 뉴스도 새로고침
+            newsViewModel.fetchTrendingNews("인기 뉴스")
+            // isRefreshing은 isLoadInProgress.observe에서 false로 자동 설정됨
+        }
     }
 
     private fun setupRecyclerViews() {
@@ -54,8 +66,8 @@ class HomeFragment : Fragment() {
         val defaultLayoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         binding.rvDefaultNews.layoutManager = defaultLayoutManager
 
-        // ★★★ NestedScrollView 스크롤 끝 감지 로직 ★★★
-        binding.nestedScrollView.setOnScrollChangeListener { v: androidx.core.widget.NestedScrollView, _, scrollY, _, oldScrollY ->
+        // NestedScrollView 스크롤 끝 감지 로직 (무한 스크롤)
+        binding.nestedScrollView.setOnScrollChangeListener { v: NestedScrollView, _, scrollY, _, oldScrollY ->
             // 스크롤 끝 감지 (Load More)
             if (scrollY == (v.getChildAt(0).measuredHeight - v.measuredHeight) && scrollY > oldScrollY) {
                 Log.d("HomeFragment", "NestedScrollView End Reached. Loading More News...")
@@ -97,25 +109,27 @@ class HomeFragment : Fragment() {
             defaultNewsAdapter.addData(newItems)
         }
 
-        // 로딩 상태 관찰 및 프로그레스바 제어
+        // ★★★ 로딩 상태 관찰 및 ProgressBar, SwipeRefreshLayout 제어 ★★★
         newsViewModel.isLoadInProgress.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            // 로딩이 완료되었을 때만 새로고침 애니메이션을 멈춥니다.
+            if (!isLoading) {
+                binding.swipeRefreshLayout.isRefreshing = false
+            }
         }
     }
 
     private fun setupEventListeners() {
-        // Chip Group 이벤트 처리 (MainActivity 로직 그대로 이동)
-        val chips = mapOf(
-            R.id.chipPolitics to "정치",
-            R.id.chipTechnology to "IT",
-            R.id.chipSports to "스포츠",
-            R.id.chipEntertainment to "연예"
-        )
-
-        chips.forEach { (chipId, query) ->
-            binding.chipGroupCategory.findViewById<Chip>(chipId)?.setOnClickListener {
-                Toast.makeText(context, "$query 카테고리 선택", Toast.LENGTH_SHORT).show()
+        // Chip Group 이벤트 처리
+        binding.chipGroupCategory.setOnCheckedStateChangeListener { group, checkedIds ->
+            if (checkedIds.isEmpty()) {
+                newsViewModel.searchNewsByCategory("최신")
+            } else {
+                val selectedChipId = checkedIds.first()
+                val selectedChip = view?.findViewById<Chip>(selectedChipId)
+                val query = selectedChip?.text.toString() ?: "최신"
                 newsViewModel.searchNewsByCategory(query)
+                Toast.makeText(context, "$query 카테고리 선택", Toast.LENGTH_SHORT).show()
             }
         }
     }
