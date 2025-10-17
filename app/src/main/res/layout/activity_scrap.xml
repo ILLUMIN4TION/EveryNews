@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
-    tools:context=".MainActivity">
+    tools:context=".ScrapActivity">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
@@ -23,92 +23,21 @@
             android:paddingBottom="16dp">
 
             <TextView
-                android:id="@+id/tvLatestNewsTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Every News"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"/>
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none">
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupCategory"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    app:singleLine="true">
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipPolitics"
-                        style="@style/Widget.MaterialComponents.Chip.Action"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Politics"
-                        android:textColor="?attr/colorOnSurface" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipTechnology"
-                        style="@style/Widget.MaterialComponents.Chip.Action"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Technology"
-                        android:textColor="?attr/colorOnSurface" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipSports"
-                        style="@style/Widget.MaterialComponents.Chip.Action"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Sports"
-                        android:textColor="?attr/colorOnSurface" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipEntertainment"
-                        style="@style/Widget.MaterialComponents.Chip.Action"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Entertainment"
-                        android:textColor="?attr/colorOnSurface" />
-                </com.google.android.material.chip.ChipGroup>
-            </HorizontalScrollView>
-
-            <TextView
-                android:layout_margin="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="스크랩 뉴스"
                 android:textColor="?attr/colorOnSurface"
+                android:textSize="24sp"
                 android:textStyle="bold"
-                android:textSize="25dp"/>
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_scrapped_news"
-                android:layout_gravity="center"
                 android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:clipToPadding="false"
-
-                android:layout_height="wrap_content"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@drawable/dotted_line"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"/>
-
+                android:layout_height="wrap_content"
+                tools:listitem="@layout/item_news"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

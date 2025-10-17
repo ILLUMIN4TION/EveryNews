@@ -128,6 +128,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        binding.ivSearchButton.setOnClickListener {
+            startActivity(Intent(this, SearchActivity::class.java))
+        }
+
         binding.bottomNavigationView.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.navigation_home -> true

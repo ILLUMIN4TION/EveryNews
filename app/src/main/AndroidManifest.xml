@@ -40,6 +40,7 @@
         <activity android:name=".ScrapActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".ThemeSettingsActivity" />
+        <activity android:name=".SearchActivity" />
         <activity
             android:name=".ui.LockScreenActivity"
             android:exported="false"

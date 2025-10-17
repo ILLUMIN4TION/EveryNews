@@ -35,6 +35,14 @@ class NewsViewModel(
     private val _isLoadInProgress = MutableLiveData(false)
     val isLoadInProgress: LiveData<Boolean> get() = _isLoadInProgress
 
+    // For SearchActivity
+    private val _searchNewsList = MutableLiveData<List<NewsItem>>()
+    val searchNewsList: LiveData<List<NewsItem>> get() = _searchNewsList
+    private val _searchLoadMoreEvent = MutableLiveData<List<NewsItem>>()
+    val searchLoadMoreEvent: LiveData<List<NewsItem>> get() = _searchLoadMoreEvent
+    private var currentSearchPage = 1
+    private var currentSearchQuery = ""
+
 
     private var currentDefaultNewsPage = 1
     private val defaultNewsDisplayCount = 20
@@ -104,6 +112,50 @@ class NewsViewModel(
             }
         }
     }
+
+    // Search News Functions
+    fun searchNews(query: String) {
+        if (query.isBlank()) return
+        currentSearchQuery = query
+        currentSearchPage = 1
+        _searchNewsList.value = emptyList()
+        fetchSearchNews(false)
+    }
+
+    fun loadMoreSearchNews() {
+        if (isLoading || currentSearchQuery.isBlank()) return
+        currentSearchPage++
+        fetchSearchNews(true)
+    }
+
+    private fun fetchSearchNews(isLoadMore: Boolean) {
+        if (isLoading) return
+        isLoading = true
+        _isLoadInProgress.value = true
+        val startItemPosition = (currentSearchPage - 1) * 10 + 1
+
+        viewModelScope.launch {
+            try {
+                val fetchedItems = NaverNewsApi.fetchNews(currentSearchQuery, 10, startItemPosition)
+                fetchedItems?.let { items ->
+                    if (isLoadMore) {
+                        _searchLoadMoreEvent.value = items
+                    } else {
+                        _searchNewsList.value = items
+                    }
+                } ?: run {
+                    if(isLoadMore) currentSearchPage--
+                }
+            } catch (e: Exception) {
+                if(isLoadMore) currentSearchPage--
+                Log.e("NewsViewModel", "Error fetching search news", e)
+            } finally {
+                isLoading = false
+                _isLoadInProgress.value = false
+            }
+        }
+    }
+
 
     // 메인 화면에서 스크랩 추가/삭제를 처리하는 기존 함수 (NewsItem 기반)
     fun toggleScrap(newsItem: NewsItem) {
