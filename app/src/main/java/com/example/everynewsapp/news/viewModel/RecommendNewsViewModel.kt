@@ -13,50 +13,58 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.util.Collections
-import kotlin.collections.flatten
 
 class RecommendNewsViewModel(private val repository: NewsRepository) : ViewModel() {
 
     private val _recommendedNewsList = MutableLiveData<List<NewsItem>>()
     val recommendedNewsList: LiveData<List<NewsItem>> get() = _recommendedNewsList
 
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean> get() = _isLoading
+
     init {
         fetchRecommendedNews()
     }
 
-    private fun fetchRecommendedNews() {
+    // ★★★ 접근 지정자를 public으로 변경 (private 키워드 제거) ★★★
+    fun fetchRecommendedNews() {
+        if (_isLoading.value == true) return
+        _isLoading.value = true
+
         viewModelScope.launch {
-            // 1. 스크랩된 뉴스 목록 가져오기
-            val scrappedNews = repository.getAllScrappedNews().firstOrNull() ?: emptyList()
+            try {
+                // 1. 스크랩된 뉴스 목록 가져오기
+                val scrappedNews = repository.getAllScrappedNews().firstOrNull() ?: emptyList()
 
-            // 2. 스크랩된 뉴스에서 상위 키워드 3개 추출
-            val topKeywords = extractTopKeywords(scrappedNews)
+                // 2. 스크랩된 뉴스에서 상위 키워드 3개 추출
+                val topKeywords = extractTopKeywords(scrappedNews)
 
-            // 3. 각 키워드로 비동기 API 호출 및 결과 통합
-            val fetchedResults: List<List<NewsItem>?> = topKeywords.map { keyword ->
-                async {
-                    // NaverNewsApi.fetchNews는 List<NewsItem>? (nullable List)를 반환합니다.
-                    NaverNewsApi.fetchNews(query = keyword)
-                }
-            }.awaitAll()
+                // 3. 각 키워드로 비동기 API 호출 및 결과 통합
+                val fetchedResults = topKeywords.map { keyword ->
+                    async {
+                        NaverNewsApi.fetchNews(query = keyword)
+                    }
+                }.awaitAll()
 
-            // 4. 결과를 합치고 중복 제거 (수정된 부분)
-            val combinedList = fetchedResults
-                .filterNotNull() // List<List<NewsItem>?>에서 null 값을 가진 리스트를 제거 -> List<List<NewsItem>>
-                .flatten()       // 중첩된 리스트를 평탄화 -> List<NewsItem>
-                .distinctBy { it.originallink } // 중복 제거
+                // 4. 결과를 합치고 중복 제거
+                val combinedList = fetchedResults.filterNotNull().flatten().distinctBy { it.originallink }
 
-            // 5. 무작위로 섞어서 다양한 추천 효과를 냄
-            val shuffledList = combinedList.shuffled()
+                // 5. 무작위로 섞어서 다양한 추천 효과를 냄
+                val shuffledList = combinedList.shuffled()
 
-            _recommendedNewsList.postValue(shuffledList)
+                _recommendedNewsList.postValue(shuffledList)
+            } catch (e: Exception) {
+                // 오류 처리 로직 추가 가능
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
-    // 스크랩된 뉴스 목록에서 상위 키워드를 추출하는 함수
+    // 이 함수는 ViewModel 내부에서만 사용하므로 private으로 유지
     private fun extractTopKeywords(scrappedNews: List<ScrappedNewsItem>): List<String> {
         val keywordScores = mutableMapOf<String, Int>()
-        val keywords = listOf("IT", "테크", "AI", "반도체", "증시", "금융", "부동산", "스포츠", "야구", "축구", "정치", "사회", "문화")
+        val keywords = listOf("정치", "IT", "스포츠", "연예", "테크", "AI", "반도체", "증시", "금융", "부동산", "문화", "사회")
 
         scrappedNews.forEach { news ->
             keywords.forEach { keyword ->

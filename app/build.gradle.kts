@@ -55,6 +55,11 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-common-java8:2.7.0")
 
 
+
+    // Fragment KTX (activityViewModels() 포함)
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
+
+
     implementation(libs.coil) // 이미지 로딩 라이브러리 (Coil 선택)
      implementation("com.github.bumptech.glide:glide:4.16.0") // Glide 사용 안 할 경우 제거
 
