@@ -1,6 +1,9 @@
 package com.example.everynewsapp
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -17,7 +20,7 @@ import com.example.everynewsapp.ui.SettingsFragment
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var newsViewModel: NewsViewModel // 모든 프래그먼트가 공유할 뷰모델
+    private lateinit var newsViewModel: NewsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyTheme(this)
@@ -25,19 +28,39 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 1. 공통 ViewModel 초기화 (Activity Scope)
+        // 1. 앱 바 설정 (Activity가 Toolbar를 호스팅합니다)
+        setSupportActionBar(binding.toolbar)
+
+        // 2. 공통 ViewModel 초기화 (Activity Scope)
         val database = AppDatabase.getDatabase(applicationContext)
         val newsDao = database.scrappedNewsDao()
         val newsRepository = NewsRepository(newsDao)
-        // Main Activity의 Lifecycle을 따르는 NewsViewModel을 준비합니다.
         val viewModelFactory = NewsViewModelFactory(newsRepository, application)
         newsViewModel = ViewModelProvider(this, viewModelFactory).get(NewsViewModel::class.java)
 
         setupBottomNavigationView()
-        // 앱 시작 시 HomeFragment를 기본 화면으로 설정
         if (savedInstanceState == null) {
             binding.bottomNavigationView.selectedItemId = R.id.navigation_home
-            replaceFragment(HomeFragment())
+            // 초기 프래그먼트 로드 시 제목 설정 함수 호출
+            replaceFragment(HomeFragment(), getString(R.string.app_title))
+        }
+    }
+
+    // ★★★ 앱 바 메뉴 추가 (검색 아이콘) ★★★
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main_toolbar, menu)
+        return true
+    }
+
+    // ★★★ 앱 바 아이템 클릭 이벤트 처리 ★★★
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_search -> {
+                // 검색 아이콘 클릭 시 SearchActivity로 이동
+                startActivity(Intent(this, SearchActivity::class.java))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -45,19 +68,19 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_home -> {
-                    replaceFragment(HomeFragment())
+                    replaceFragment(HomeFragment(), getString(R.string.app_title))
                     true
                 }
                 R.id.navigation_recommend -> {
-                    replaceFragment(RecommendFragment())
+                    replaceFragment(RecommendFragment(), getString(R.string.title_recommend))
                     true
                 }
                 R.id.navigation_scrap -> {
-                    replaceFragment(ScrapFragment())
+                    replaceFragment(ScrapFragment(), getString(R.string.title_scrap))
                     true
                 }
                 R.id.navigation_settings -> {
-                    replaceFragment(SettingsFragment())
+                    replaceFragment(SettingsFragment(), getString(R.string.title_settings))
                     true
                 }
                 else -> false
@@ -65,9 +88,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun replaceFragment(fragment: Fragment) {
+    private fun replaceFragment(fragment: Fragment, title: String) {
         supportFragmentManager.beginTransaction()
             .replace(binding.fragmentContainer.id, fragment)
             .commit()
+        supportActionBar?.title = title
     }
 }

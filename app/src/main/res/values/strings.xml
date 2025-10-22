@@ -1,6 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EveryNewsApp</string>
     <string name="news_thumbnail">뉴스 썸네일</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- 앱 바 제목 -->
+    <string name="title_home">Every News</string>
+    <string name="title_recommend">추천 뉴스</string>
+    <string name="title_scrap">스크랩 뉴스</string>
+    <string name="title_settings">앱 설정</string>
+
+    <!-- 카테고리 버튼-->
+    <string name="app_title">Every News</string>
+    <string name="category_politics">Politics</string>
+    <string name="category_technology">Technology</string>
+    <string name="category_sports">Sports</string>
+    <string name="category_entertainment">Entertainment</string>
+
+    <!-- 섹션 제목 -->
+    <string name="section_trending_news">인기 뉴스</string>
+    <string name="section_latest_news">최신 뉴스</string>
+
+    <!-- 기능 텍스트 -->
+    <string name="scroll_to_top">스크롤 최상단으로 이동</string>
+    <string name="search_hint">검색어를 입력하세요</string>
+    <string name="search_no_results">검색 결과가 없습니다.</string>
 </resources>

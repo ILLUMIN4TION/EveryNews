@@ -14,6 +14,7 @@ import com.example.everynewsapp.news.network.NaverNewsApi
 import com.example.everynewsapp.news.repository.NewsRepository
 import com.example.everynewsapp.ui.LockScreenNewsManager
 import kotlinx.coroutines.launch
+import com.example.everynewsapp.R // R resource import
 
 class NewsViewModel(
     private val newsRepository: NewsRepository,
@@ -35,16 +36,25 @@ class NewsViewModel(
     private val _isLoadInProgress = MutableLiveData(false)
     val isLoadInProgress: LiveData<Boolean> get() = _isLoadInProgress
 
+    // For SearchActivity
+    private val _searchNewsList = MutableLiveData<List<NewsItem>>()
+    val searchNewsList: LiveData<List<NewsItem>> get() = _searchNewsList
+    private val _searchLoadMoreEvent = MutableLiveData<List<NewsItem>>()
+    val searchLoadMoreEvent: LiveData<List<NewsItem>> get() = _searchLoadMoreEvent
+    private var currentSearchPage = 1
+    private var currentSearchQuery = ""
+
 
     private var currentDefaultNewsPage = 1
     private val defaultNewsDisplayCount = 20
     private val trendingNewsDisplayCount = 10
-    private var currentQuery = "최신"
+    private var currentQuery = getApplication<Application>().getString(R.string.section_latest_news)
     private var isLoading = false
 
     init {
         searchNewsByCategory(currentQuery)
-        fetchTrendingNews("인기 뉴스")
+        // R.string.section_trending_news 리소스 사용
+        fetchTrendingNews(getApplication<Application>().getString(R.string.section_trending_news))
     }
 
     fun searchNewsByCategory(query: String) {
@@ -82,7 +92,8 @@ class NewsViewModel(
                     }
                 } ?: run {
                     if (isLoadMore) currentDefaultNewsPage--
-                    Log.e("NewsViewModel", "Error fetching default news, result is null")
+                    // ★★★ 수정 완료: Log.e의 두 번째 인수로 모든 메시지 전달 ★★★
+                    Log.e("NewsViewModel", "Error fetching default news for query: ${getApplication<Application>().getString(R.string.section_latest_news)}")
                 }
             } catch (e: Exception) {
                 Log.e("NewsViewModel", "Error fetching default news", e)
@@ -94,7 +105,8 @@ class NewsViewModel(
         }
     }
 
-    public fun fetchTrendingNews(query: String) {
+    // ★★★ 접근 지정자를 public으로 변경하여 HomeFragment에서 호출 가능하도록 수정 ★★★
+    fun fetchTrendingNews(query: String) {
         viewModelScope.launch {
             try {
                 val fetchedItems = NaverNewsApi.fetchNews(query, display = trendingNewsDisplayCount, start = 1)
@@ -104,6 +116,50 @@ class NewsViewModel(
             }
         }
     }
+
+    // Search News Functions
+    fun searchNews(query: String) {
+        if (query.isBlank()) return
+        currentSearchQuery = query
+        currentSearchPage = 1
+        _searchNewsList.value = emptyList()
+        fetchSearchNews(false)
+    }
+
+    fun loadMoreSearchNews() {
+        if (isLoading || currentSearchQuery.isBlank()) return
+        currentSearchPage++
+        fetchSearchNews(true)
+    }
+
+    private fun fetchSearchNews(isLoadMore: Boolean) {
+        if (isLoading) return
+        isLoading = true
+        _isLoadInProgress.value = true
+        val startItemPosition = (currentSearchPage - 1) * 10 + 1
+
+        viewModelScope.launch {
+            try {
+                val fetchedItems = NaverNewsApi.fetchNews(currentSearchQuery, 10, startItemPosition)
+                fetchedItems?.let { items ->
+                    if (isLoadMore) {
+                        _searchLoadMoreEvent.value = items
+                    } else {
+                        _searchNewsList.value = items
+                    }
+                } ?: run {
+                    if(isLoadMore) currentSearchPage--
+                }
+            } catch (e: Exception) {
+                if(isLoadMore) currentSearchPage--
+                Log.e("NewsViewModel", "Error fetching search news", e)
+            } finally {
+                isLoading = false
+                _isLoadInProgress.value = false
+            }
+        }
+    }
+
 
     // 메인 화면에서 스크랩 추가/삭제를 처리하는 기존 함수 (NewsItem 기반)
     fun toggleScrap(newsItem: NewsItem) {

@@ -8,7 +8,7 @@
     android:background="?attr/colorSurface"
     tools:context=".ui.HomeFragment">
 
-    <!-- ★★★ SwipeRefreshLayout으로 NestedScrollView 감싸기 ★★★ -->
+    <!-- SwipeRefreshLayout이 FragmentContainerView를 덮고 있다고 가정합니다. -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="0dp"
@@ -21,11 +21,7 @@
         <androidx.core.widget.NestedScrollView
             android:id="@+id/nestedScrollView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="match_parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -33,17 +29,7 @@
                 android:orientation="vertical"
                 android:paddingBottom="16dp">
 
-                <TextView
-                    android:id="@+id/tvLatestNewsTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Every News"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp"/>
+
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"
@@ -57,42 +43,43 @@
                         android:paddingStart="16dp"
                         android:paddingEnd="16dp"
                         app:singleLine="true">
-                        <!-- Chip 항목들... -->
+
+                        <!-- 2. 카테고리 칩 텍스트 수정 -->
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipPolitics"
                             style="@style/Widget.MaterialComponents.Chip.Action"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Politics"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:text="@string/category_politics"
+                        android:textColor="?attr/colorOnSurface" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipTechnology"
                             style="@style/Widget.MaterialComponents.Chip.Action"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Technology"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:text="@string/category_technology"
+                        android:textColor="?attr/colorOnSurface" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipSports"
                             style="@style/Widget.MaterialComponents.Chip.Action"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Sports"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:text="@string/category_sports"
+                        android:textColor="?attr/colorOnSurface" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipEntertainment"
                             style="@style/Widget.MaterialComponents.Chip.Action"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Entertainment"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:text="@string/category_entertainment"
+                        android:textColor="?attr/colorOnSurface" />
                     </com.google.android.material.chip.ChipGroup>
                 </HorizontalScrollView>
 
-                <!-- "인기 뉴스" 섹션 -->
+                <!-- 3. 섹션 제목 수정 (인기 뉴스) -->
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -103,12 +90,12 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="인기 뉴스"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textStyle="bold"
-                        android:textSize="25dp"
-                        android:layout_alignParentStart="true"
-                        android:layout_marginStart="0dp"/>
+                        android:text="@string/section_trending_news"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textStyle="bold"
+                    android:textSize="25dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="0dp"/>
 
                 </RelativeLayout>
 
@@ -135,16 +122,16 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="16dp"/>
 
-                <!-- "최신 뉴스" 섹션 -->
+                <!-- 4. 섹션 제목 수정 (최신 뉴스) -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="최신 뉴스"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textStyle="bold"
-                    android:textSize="25dp"
-                    android:layout_margin="10dp"
-                    android:layout_marginStart="6dp" />
+                    android:text="@string/section_latest_news"
+                android:textColor="?attr/colorOnSurface"
+                android:textStyle="bold"
+                android:textSize="25dp"
+                android:layout_margin="10dp"
+                android:layout_marginStart="6dp" />
 
 
                 <!-- rv_default_news (세로 스크롤 - NestedScrollView의 자식) -->
@@ -185,8 +172,8 @@
         android:src="@drawable/ic_chevron_up"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="스크롤 최상단으로 이동"
-        android:visibility="gone"/>
+        android:contentDescription="@string/scroll_to_top"
+    android:visibility="gone"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -42,23 +42,18 @@ class HomeFragment : Fragment() {
         setupEventListeners()
         observeViewModel()
 
-        // ★★★ SwipeRefreshLayout 초기 설정 ★★★
         setupSwipeRefresh()
     }
 
     private fun setupSwipeRefresh() {
-        // SwipeRefreshLayout 새로고침 리스너
         binding.swipeRefreshLayout.setOnRefreshListener {
-            // 칩이나 카테고리 상태에 관계없이 초기 쿼리("최신")로 새로고침 요청
-            newsViewModel.searchNewsByCategory("최신")
-            // 인기 뉴스도 새로고침
-            newsViewModel.fetchTrendingNews("인기 뉴스")
-            // isRefreshing은 isLoadInProgress.observe에서 false로 자동 설정됨
+            // ★★★ strings.xml 리소스를 사용하도록 수정 ★★★
+            newsViewModel.searchNewsByCategory(getString(R.string.section_latest_news))
+            newsViewModel.fetchTrendingNews(getString(R.string.section_trending_news))
         }
     }
 
     private fun setupRecyclerViews() {
-        // 최신 뉴스 (무한 스크롤 적용)
         defaultNewsAdapter = NewsAdapter(mutableListOf()) { newsItem ->
             newsViewModel.toggleScrap(newsItem)
         }
@@ -66,15 +61,12 @@ class HomeFragment : Fragment() {
         val defaultLayoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         binding.rvDefaultNews.layoutManager = defaultLayoutManager
 
-        // NestedScrollView 스크롤 끝 감지 로직 (무한 스크롤)
         binding.nestedScrollView.setOnScrollChangeListener { v: NestedScrollView, _, scrollY, _, oldScrollY ->
-            // 스크롤 끝 감지 (Load More)
             if (scrollY == (v.getChildAt(0).measuredHeight - v.measuredHeight) && scrollY > oldScrollY) {
                 Log.d("HomeFragment", "NestedScrollView End Reached. Loading More News...")
                 newsViewModel.loadMoreDefaultNews()
             }
 
-            // FAB 버튼 가시성 제어
             if (scrollY > 500) {
                 binding.fabScrollToTop.visibility = View.VISIBLE
             } else {
@@ -87,7 +79,6 @@ class HomeFragment : Fragment() {
             binding.nestedScrollView.smoothScrollTo(0, 0)
         }
 
-        // 인기 뉴스 (한 번만 로드)
         trendingNewsAdapter = TrendingNewsAdapter(mutableListOf()) { newsItem ->
             newsViewModel.toggleScrap(newsItem)
         }
@@ -96,7 +87,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        // ViewModel의 LiveData를 관찰하여 UI 업데이트
         newsViewModel.defaultNewsList.observe(viewLifecycleOwner) { newsList ->
             defaultNewsAdapter.updateData(newsList)
         }
@@ -109,10 +99,8 @@ class HomeFragment : Fragment() {
             defaultNewsAdapter.addData(newItems)
         }
 
-        // ★★★ 로딩 상태 관찰 및 ProgressBar, SwipeRefreshLayout 제어 ★★★
         newsViewModel.isLoadInProgress.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-            // 로딩이 완료되었을 때만 새로고침 애니메이션을 멈춥니다.
             if (!isLoading) {
                 binding.swipeRefreshLayout.isRefreshing = false
             }
@@ -123,13 +111,15 @@ class HomeFragment : Fragment() {
         // Chip Group 이벤트 처리
         binding.chipGroupCategory.setOnCheckedStateChangeListener { group, checkedIds ->
             if (checkedIds.isEmpty()) {
-                newsViewModel.searchNewsByCategory("최신")
+                // ★★★ strings.xml 리소스를 사용하도록 수정 ★★★
+                newsViewModel.searchNewsByCategory(getString(R.string.section_latest_news))
             } else {
                 val selectedChipId = checkedIds.first()
                 val selectedChip = view?.findViewById<Chip>(selectedChipId)
-                val query = selectedChip?.text.toString() ?: "최신"
+                // Chip 텍스트는 XML에서 strings.xml 리소스를 사용하므로, 그대로 .text.toString() 사용
+                val query = selectedChip?.text.toString() ?: getString(R.string.section_latest_news)
                 newsViewModel.searchNewsByCategory(query)
-                Toast.makeText(context, "$query 카테고리 선택", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "$query 선택", Toast.LENGTH_SHORT).show()
             }
         }
     }
