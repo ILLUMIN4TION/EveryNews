@@ -4,4 +4,12 @@
     <color name="white">#FFFFFFFF</color>
     <color name="dark_gray">#121212</color>
     <color name="light_gray">#B0B0B0</color>
+
+    <color name="opera_primary_light">#FA8072</color> <color name="opera_on_primary_light">#FFFFFFFF</color>
+    <color name="opera_primary_container_light">#FFF0EF</color>
+    <color name="opera_on_primary_container_light">#5F211A</color>
+
+    <color name="opera_primary_dark">#FA8072</color> <color name="opera_on_primary_dark">#5F211A</color>
+    <color name="opera_primary_container_dark">#7D3227</color>
+    <color name="opera_on_primary_container_dark">#FFF0EF</color>
 </resources>

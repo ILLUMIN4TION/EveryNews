@@ -34,6 +34,9 @@ class SettingsActivity : AppCompatActivity() {
         binding.llThemeSetting.setOnClickListener {
             startActivity(Intent(this, ThemeSettingsActivity::class.java))
         }
+        binding.llNotificationSetting.setOnClickListener {
+            startActivity(Intent(this, NotificationSettingsActivity::class.java))
+        }
 
         setupLockscreenSwitch()
         setupBottomNav()

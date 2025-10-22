@@ -57,6 +57,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
-        android:background="?attr/colorSurface"/>
+        android:background="?attr/colorSurface"
+        app:itemIconTint="@color/bottom_nav_color"
+        app:itemTextColor="@color/bottom_nav_color"
+        app:itemActiveIndicatorStyle="@style/App.BottomNavigation.Indicator" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

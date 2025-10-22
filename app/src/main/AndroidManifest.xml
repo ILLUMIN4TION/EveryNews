@@ -41,6 +41,8 @@
         <activity android:name=".SettingsActivity" />
         <activity android:name=".ThemeSettingsActivity" />
         <activity android:name=".SearchActivity" />
+
+        <activity android:name=".NotificationSettingsActivity" />
         <activity
             android:name=".ui.LockScreenActivity"
             android:exported="false"
