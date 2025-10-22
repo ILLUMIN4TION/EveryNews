@@ -15,6 +15,8 @@
     <string name="category_technology">Technology</string>
     <string name="category_sports">Sports</string>
     <string name="category_entertainment">Entertainment</string>
+    <string name="category_economy">Economy</string>
+    <string name="category_world">World</string>
 
     <!-- 섹션 제목 -->
     <string name="section_trending_news">인기 뉴스</string>

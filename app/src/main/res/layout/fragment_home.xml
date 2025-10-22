@@ -66,6 +66,20 @@
                         android:layout_height="wrap_content"
                         android:text="@string/category_entertainment"
                         android:textColor="?attr/colorOnSurface" />
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipEconomy"
+                        style="@style/Widget.MaterialComponents.Chip.Action"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/category_economy"
+                        android:textColor="?attr/colorOnSurface" />
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipWorld"
+                        style="@style/Widget.MaterialComponents.Chip.Action"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/category_world"
+                        android:textColor="?attr/colorOnSurface" />
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
         </LinearLayout>
