@@ -18,6 +18,14 @@
     <string name="category_economy">Economy</string>
     <string name="category_world">World</string>
 
+    <!-- ★★★ 새로운 쿼리 리소스 추가 (한글 검색용) ★★★ -->
+    <string name="query_politics">정치</string>
+    <string name="query_technology">기술</string>
+    <string name="query_sports">스포츠</string>
+    <string name="query_entertainment">연예</string>
+    <string name="query_economy">경제</string>
+    <string name="query_world">국제</string>
+
     <!-- 섹션 제목 -->
     <string name="section_trending_news">인기 뉴스</string>
     <string name="section_latest_news">최신 뉴스</string>

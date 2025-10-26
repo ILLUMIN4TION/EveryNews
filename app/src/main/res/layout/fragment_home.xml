@@ -37,6 +37,7 @@
                     android:layout_height="wrap_content"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
+                    app:singleSelection="true"
                     app:singleLine="true">
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipPolitics"
