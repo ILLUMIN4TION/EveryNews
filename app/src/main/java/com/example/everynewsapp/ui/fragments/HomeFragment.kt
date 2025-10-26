@@ -147,6 +147,13 @@ class HomeFragment : Fragment() {
                 binding.swipeRefreshLayout.isRefreshing = false
             }
         }
+        // 2. ★★★ MainActivity의 검색에 반응하는 옵저버 (추가) ★★★
+        newsViewModel.clearChipSelectionEvent.observe(viewLifecycleOwner) { shouldClear ->
+            if (shouldClear) {
+                Log.d("HomeFragment", "Clearing chips due to search")
+                binding.chipGroupCategory.clearCheck()
+            }
+        }
     }
 
     // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
@@ -154,11 +161,6 @@ class HomeFragment : Fragment() {
     // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
     private fun setupEventListeners() {
 
-        // ChipGroup의 리스너는 버그가 있으므로 사용하지 않습니다.
-        // binding.chipGroupCategory.setOnCheckedStateChangeListener { ... }
-
-        // 대신, 각 칩에 개별 OnClickListener를 설정합니다.
-        // 이 방법이 가장 확실하게 클릭을 감지합니다.
 
         val chipClickListener = View.OnClickListener { view ->
             // 클릭된 칩의 ID를 가져옵니다 (예: R.id.chipPolitics)
