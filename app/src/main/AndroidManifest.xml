@@ -41,6 +41,9 @@
         <activity android:name=".SettingsActivity" />
         <activity android:name=".ThemeSettingsActivity" />
         <activity
+            android:name=".NotificationSettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.LockScreenActivity"
             android:exported="false"
             android:showOnLockScreen="true"

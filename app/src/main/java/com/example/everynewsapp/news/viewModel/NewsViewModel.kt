@@ -52,22 +52,25 @@ class NewsViewModel(
 
 
     // --- SearchActivity 관련 코드 모두 제거 ---
-    // private val _searchNewsList = ... (제거)
-    // private val _searchLoadMoreEvent = ... (제거)
-    // ... (관련 변수 및 함수 모두 제거)
+    // (기존 _searchNewsList, searchNews 등 모두 삭제)
 
 
     // --- 뉴스 로드 상태 관리 ---
     private var currentDefaultNewsPage = 1
     private val defaultNewsDisplayCount = 20
     private val trendingNewsDisplayCount = 10
-    // currentQuery: 현재 로드된 뉴스의 쿼리 (검색어 또는 카테고리)
-    private var currentQuery = "최신뉴스"
+
+    // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+    // ★★★ 여기를 수정했습니다! ("" -> R.string.section_latest_news) ★★★
+    private var currentQuery = getApplication<Application>().getString(R.string.section_latest_news)
+    // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
     private var isLoading = false // 중복 로드 방지 플래그
 
 
     init {
         // 앱 실행 시 "최신 뉴스" 로드
+        // 이제 currentQuery에 "최신 뉴스"가 들어있으므로 정상 호출됩니다.
         searchNewsByCategory(currentQuery)
         // 트렌딩 뉴스 로드
         fetchTrendingNews(getApplication<Application>().getString(R.string.section_trending_news))
@@ -78,6 +81,7 @@ class NewsViewModel(
      * (기존 fetchDefaultNews(isLoadMore = false) 로직 통합)
      */
     fun searchNewsByCategory(query: String) {
+        // "최신 뉴스"가 들어와도 isBlank()가 false이므로 통과합니다.
         if (query.isBlank()) return
         if (isLoading) return
         isLoading = true

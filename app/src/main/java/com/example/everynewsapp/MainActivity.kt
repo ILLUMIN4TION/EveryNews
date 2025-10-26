@@ -5,7 +5,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView // ★★★ 추가 ★★★
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.everynewsapp.databinding.ActivityMainBinding
@@ -23,7 +23,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var newsViewModel: NewsViewModel
 
-    // ★★★ SearchView를 참조하기 위한 변수 추가 ★★★
     private var searchMenuItem: MenuItem? = null
     private var searchView: SearchView? = null
 
@@ -33,10 +32,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 1. 앱 바 설정 (Activity가 Toolbar를 호스팅합니다)
         setSupportActionBar(binding.toolbar)
 
-        // 2. 공통 ViewModel 초기화 (Activity Scope)
         val database = AppDatabase.getDatabase(applicationContext)
         val newsDao = database.scrappedNewsDao()
         val newsRepository = NewsRepository(newsDao)
@@ -46,68 +43,57 @@ class MainActivity : AppCompatActivity() {
         setupBottomNavigationView()
         if (savedInstanceState == null) {
             binding.bottomNavigationView.selectedItemId = R.id.navigation_home
-            // 초기 프래그먼트 로드 시 제목 설정 함수 호출
             replaceFragment(HomeFragment(), getString(R.string.app_title))
         }
 
-        // ★★★ HomeFragment에서 칩 클릭 시 SearchView를 닫기 위한 옵저버 추가 ★★★
         observeViewModel()
     }
 
-    // ★★★ 앱 바 메뉴 추가 (SearchView 설정) ★★★
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main_toolbar, menu)
 
-        // ★★★ 검색 메뉴 아이템 및 SearchView 설정 ★★★
         searchMenuItem = menu?.findItem(R.id.action_search)
         searchView = searchMenuItem?.actionView as? SearchView
 
         searchView?.queryHint = getString(R.string.search_hint)
-        searchView?.isSubmitButtonEnabled = true // (선택 사항: 제출 버튼 활성화)
+        searchView?.isSubmitButtonEnabled = true
 
         searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            // 키보드의 '검색' 버튼을 눌렀을 때
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!query.isNullOrBlank()) {
                     Log.d("MainActivity", "Search Query Submitted: $query")
-                    // 1. ViewModel으로 검색 실행
                     newsViewModel.searchNewsByCategory(query)
-                    // 2. HomeFragment의 칩 선택 해제 요청
                     newsViewModel.clearChipSelectionEvent.postValue(true)
-                    // 3. 검색창 닫고 포커스 제거
                     searchMenuItem?.collapseActionView()
                     searchView?.clearFocus()
                 }
                 return true
             }
 
-            // 검색창 텍스트가 바뀔 때 (여기서는 사용 안 함)
             override fun onQueryTextChange(newText: String?): Boolean {
                 return true
             }
         })
 
+        // ★★★ 수정: 이 줄을 삭제합니다. ★★★
+        // (replaceFragment 함수가 가시성을 제어하도록 둡니다.)
+        // searchMenuItem?.isVisible = false
+
         return true
     }
 
-    // ★★★ 앱 바 아이템 클릭 이벤트 처리 ★★★
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // ★★★ SearchActivity로 이동하는 로직 삭제 ★★★
-        // R.id.action_search 케이스는 이제 SearchView가 자동으로 처리합니다.
         return when (item.itemId) {
-            /* (R.id.action_search 케이스 제거) */
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    // ★★★ ViewModel 옵저버 추가 (새 함수) ★★★
     private fun observeViewModel() {
         newsViewModel.collapseSearchViewEvent.observe(this) { shouldCollapse ->
-            if (shouldCollapse == true) { // null 체크
-                // HomeFragment에서 칩을 클릭하면 SearchView를 닫습니다.
+            if (shouldCollapse == true) {
                 searchMenuItem?.collapseActionView()
                 searchView?.clearFocus()
-                newsViewModel.collapseSearchViewEvent.postValue(false) // 이벤트 소비
+                newsViewModel.collapseSearchViewEvent.postValue(false)
             }
         }
     }
@@ -136,10 +122,33 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+    // ★★★ 핵심 수정: replaceFragment 함수 ★★★
+    // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
     private fun replaceFragment(fragment: Fragment, title: String) {
         supportFragmentManager.beginTransaction()
             .replace(binding.fragmentContainer.id, fragment)
             .commit()
+
+        // 1. 타이틀 변경 (기존과 동일)
         supportActionBar?.title = title
+
+        // 2. ★★★ 프래그먼트 종류에 따라 검색 아이콘 가시성 제어 ★★★
+        // (searchMenuItem이 null이 아닐 때만 실행되도록 ?. 사용)
+        if (fragment is HomeFragment) {
+            // HomeFragment일 때만 검색 아이콘을 보이게 합니다.
+            searchMenuItem?.isVisible = true
+            Log.d("MainActivity", "Showing Search Icon for HomeFragment")
+        } else {
+            // 다른 모든 프래그먼트에서는 검색 아이콘을 숨깁니다.
+            searchMenuItem?.isVisible = false
+            Log.d("MainActivity", "Hiding Search Icon")
+
+            // ★★★ (중요) 혹시 검색창이 열려있는 상태로 다른 탭으로 이동하면 닫아줍니다. ★★★
+            if (searchMenuItem?.isActionViewExpanded == true) {
+                searchMenuItem?.collapseActionView()
+            }
+        }
     }
 }
+
