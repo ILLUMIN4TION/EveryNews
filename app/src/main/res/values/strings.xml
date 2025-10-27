@@ -28,7 +28,7 @@
 
     <!-- 섹션 제목 -->
     <string name="section_trending_news">인기 뉴스</string>
-    <string name="section_latest_news">뉴스</string>
+    <string name="section_latest_news">최신 뉴스</string>
 
     <!-- 기능 텍스트 -->
     <string name="scroll_to_top">스크롤 최상단으로 이동</string>

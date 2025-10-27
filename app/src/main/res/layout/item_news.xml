@@ -1,74 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
+<!-- ★★★ MaterialCardView -> ConstraintLayout으로 변경 ★★★ -->
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
-    app:cardBackgroundColor="?attr/colorSurfaceVariant"
-    app:cardElevation="2dp"
-    app:cardCornerRadius="12dp">
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="12dp"
+    android:background="?attr/colorSurfaceContainerLowest"> <!-- 배경색을 테마 표면색으로 -->
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <!-- ★★★ ImageView -> ShapeableImageView로 변경하고, ShapeAppearance 적용 ★★★ -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_default_news_thumbnail"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:importantForAccessibility="no"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.App.CornerSize8dp"
+        tools:src="@tools:sample/avatars" />
 
-        <ImageView
-            android:id="@+id/iv_defaul_news_thumbnail"
-            android:layout_width="0dp"
-            android:layout_height="180dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:src="@tools:sample/backgrounds/scenic"/>
+    <!-- 텍스트 영역 (오른쪽) -->
+    <LinearLayout
+        android:id="@+id/text_content_area"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="12dp"
+        app:layout_constraintStart_toEndOf="@id/iv_default_news_thumbnail"
+        app:layout_constraintEnd_toStartOf="@id/imv_news_scrap"
+        app:layout_constraintTop_toTopOf="@id/iv_default_news_thumbnail"
+        app:layout_constraintBottom_toBottomOf="@id/iv_default_news_thumbnail"
+        app:layout_constraintHorizontal_bias="0">
 
         <TextView
             android:id="@+id/tv_default_news_title"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginHorizontal="16dp"
             android:ellipsize="end"
             android:maxLines="2"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/iv_defaul_news_thumbnail"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="News Title Goes Here" />
+            tools:text="News Title Goes Here: A very long title that might span across multiple lines." />
 
         <TextView
             android:id="@+id/tv_default_news_description"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="16dp"
             android:ellipsize="end"
-            android:maxLines="3"
+            android:maxLines="2"
             android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="14sp"
-            app:layout_constraintTop_toBottomOf="@id/tv_default_news_title"
-            app:layout_constraintStart_toStartOf="@id/tv_default_news_title"
-            app:layout_constraintEnd_toEndOf="@id/tv_default_news_title"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:text="News description goes here. This is a sample text for the description of the news article." />
+            android:textSize="13sp"
+            tools:text="News description goes here. This is a sample text for the description of the news article. It provides a brief summary." />
 
-        <ImageView
-            android:id="@+id/imv_news_scrap"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:padding="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_bookmark"
-            app:tint="?attr/colorOnSurfaceVariant"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
+    <!-- 스크랩 버튼 (오른쪽 상단) -->
+    <ImageView
+        android:id="@+id/imv_news_scrap"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="8dp"
+        android:src="@drawable/ic_bookmark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/iv_default_news_thumbnail"
+        app:tint="?attr/colorOnSurfaceVariant"
+        android:contentDescription="스크랩 버튼" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

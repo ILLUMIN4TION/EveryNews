@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <size android:height="2dp" />
+    <!-- 색상은 HomeFragment.kt에서 테마 속성(colorOutlineVariant)으로 설정됩니다 -->
+    <solid android:color="@android:color/transparent" />
+</shape>
+

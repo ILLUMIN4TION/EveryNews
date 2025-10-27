@@ -47,7 +47,7 @@ class NewsAdapter(
         fun bind(item: NewsItem, onScrapClick: (NewsItem) -> Unit) {
             binding.tvDefaultNewsTitle.text = item.title.stripHtml()
             binding.tvDefaultNewsDescription.text = item.description.stripHtml()
-            binding.ivDefaulNewsThumbnail.load(item.imageUrl) {
+            binding.ivDefaultNewsThumbnail.load(item.imageUrl) {
                 crossfade(true)
                 placeholder(R.drawable.ic_search)
                 error(R.drawable.ic_search)

@@ -1,43 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
+    android:background="?attr/colorSurfaceContainerLowest"
     tools:context=".ui.RecommendFragment">
 
-    <TextView
-        android:id="@+id/tv_recommend_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="스크랩 기반 추천 뉴스"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:padding="16dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/btn_refresh_recommend"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="새로 추천받기"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tv_recommend_title"
-        app:layout_constraintBottom_toBottomOf="@id/tv_recommend_title"
-        android:layout_marginEnd="16dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_recommended_news"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/tv_recommend_title"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
         android:paddingHorizontal="8dp"
         tools:listitem="@layout/item_news" />
 
@@ -46,9 +22,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_constraintTop_toTopOf="@id/rv_recommended_news"
-        app:layout_constraintBottom_toBottomOf="@id/rv_recommended_news"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_centerInParent="true"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/tvEmptyRecommend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="뉴스를 여러 개 스크랩 해서 추천 뉴스를 받아보세요"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        tools:visibility="visible"/>
+
+</RelativeLayout>

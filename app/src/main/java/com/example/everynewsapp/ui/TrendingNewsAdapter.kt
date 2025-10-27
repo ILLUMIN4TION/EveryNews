@@ -37,8 +37,8 @@ class TrendingNewsAdapter(
 
     class ViewHolder(private val binding: ItemNewsSmallBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: NewsItem, onScrapClick: (NewsItem) -> Unit) {
-            binding.tvSmallNewsTitle.text = item.title.stripHtml()
-            binding.ivSmallNewsThumbnail.load(item.imageUrl) {
+            binding.tvTrendingNewsTitle.text = item.title.stripHtml()
+            binding.ivTrendingNewsThumbnail.load(item.imageUrl) {
                 crossfade(true)
                 placeholder(R.drawable.ic_search)
                 error(R.drawable.ic_search)
@@ -52,7 +52,7 @@ class TrendingNewsAdapter(
                 context.startActivity(intent)
             }
 
-            binding.ivSmallNewsScrapButton.setOnClickListener {
+            binding.ivTrendingNewsScrapButton.setOnClickListener {
                 onScrapClick(item)
                 Toast.makeText(itemView.context, "스크랩!", Toast.LENGTH_SHORT).show()
             }

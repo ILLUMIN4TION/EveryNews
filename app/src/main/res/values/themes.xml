@@ -25,4 +25,9 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
+    <style name="ShapeAppearance.App.CornerSize8dp" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
 </resources>
