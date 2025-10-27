@@ -22,7 +22,8 @@ object NotificationHelper {
     // 1. (앱 실행 시) 알림 채널 생성
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            // ★★★ 중요도를 DEFAULT에서 LOW로 변경 (소리/진동 없음) ★★★
+            val importance = NotificationManager.IMPORTANCE_LOW
             val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
                 description = "설정한 키워드에 대한 새 소식 알림"
             }
@@ -51,14 +52,14 @@ object NotificationHelper {
             .setSmallIcon(R.drawable.ic_launcher_foreground) // 알림 아이콘
             .setContentTitle(newsItem.title) // 알림 제목
             .setContentText(newsItem.description) // 알림 내용
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_LOW) // ★★★ 우선순위를 DEFAULT에서 LOW로 변경 ★★★
             .setContentIntent(pendingIntent) // 클릭 시 실행할 Intent
             .setAutoCancel(true) // 클릭하면 알림 자동 삭제
 
         // 3. 알림 권한 확인
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                // 권한이 없으면 전송하지 않음 (테스트 버튼 로직에서 이미 권한을 요청하므로 여기서는 생략)
+                // 권한이 없으면 전송하지 않음
                 return
             }
         }

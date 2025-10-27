@@ -36,12 +36,6 @@ class HomeFragment : Fragment() {
         R.id.chipWorld to R.string.query_world,
     )
 
-    // ★★★ 변경 ★★★
-    // '정치' 칩의 초기(프로그래매틱) 클릭으로 인한 중복 쿼리 방지 플래그
-    // 이 플래그는 더 이상 ChipGroup 리스너에서 사용되지 않지만,
-    // onViewCreated의 초기화 로직을 명확히 하기 위해 남겨둘 수 있습니다. (사실상 필요 없어짐)
-    // private var skipNextQuery = false // -> setupEventListeners에서 이 로직을 제거함
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -54,17 +48,14 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerViews()
-        setupEventListeners() // ★★★ 가장 중요 ★★★
+        setupEventListeners()
         observeViewModel()
         setupSwipeRefresh()
 
-        // ★★★ 변경: 사용자의 요구사항 반영 ★★★
         if (savedInstanceState == null) {
-            // 1. 앱 시작 시 무조건 '최신뉴스'를 조회합니다. (요구사항 1)
             newsViewModel.searchNewsByCategory(getString(R.string.section_latest_news))
             Log.d("HomeFragment", "Initial Query: Latest News")
 
-            // 2. '정치' 칩을 시각적으로만 선택합니다. (리스너가 분리되어 쿼리 실행 안 됨)
             binding.chipGroupCategory.check(R.id.chipPolitics)
         }
     }
@@ -95,7 +86,6 @@ class HomeFragment : Fragment() {
 
 
     private fun setupRecyclerViews() {
-        // (기존 코드와 동일)
         defaultNewsAdapter = NewsAdapter(mutableListOf()) { newsItem ->
             newsViewModel.toggleScrap(newsItem)
         }
@@ -128,7 +118,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        // (기존 코드와 동일, viewFalser 오타 수정됨)
         newsViewModel.defaultNewsList.observe(viewLifecycleOwner) { newsList ->
             defaultNewsAdapter.updateData(newsList)
         }
@@ -147,51 +136,48 @@ class HomeFragment : Fragment() {
                 binding.swipeRefreshLayout.isRefreshing = false
             }
         }
-        // 2. ★★★ MainActivity의 검색에 반응하는 옵저버 (추가) ★★★
-        newsViewModel.clearChipSelectionEvent.observe(viewLifecycleOwner) { shouldClear ->
-            if (shouldClear) {
-                Log.d("HomeFragment", "Clearing chips due to search")
-                binding.chipGroupCategory.clearCheck()
-            }
-        }
+
+        // ★★★ START: 이 코드 블록을 삭제하세요 (151 ~ 157라인) ★★★
+        // newsViewModel.clearChipSelectionEvent.observe(viewLifecycleOwner) { shouldClear ->
+        //     if (shouldClear) {
+        //         Log.d("HomeFragment", "Clearing chips due to search")
+        //         binding.chipGroupCategory.clearCheck()
+        //     }
+        // }
+        // ★★★ END: 삭제할 코드 블록 ★★★
     }
 
-    // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-    // ★★★ 변경: 리스너 설정 로직 전체 변경 ★★★
-    // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
     private fun setupEventListeners() {
 
-
         val chipClickListener = View.OnClickListener { view ->
-            // 클릭된 칩의 ID를 가져옵니다 (예: R.id.chipPolitics)
             val clickedChipId = view.id
-
-            // 1. ChipGroup이 클릭된 칩을 시각적으로 선택하도록 강제합니다.
             binding.chipGroupCategory.check(clickedChipId)
-
-            // 2. 맵(chipQueries)을 사용해 ID에 해당하는 쿼리(R.string.query_politics)를 찾습니다.
             val queryResourceId = chipQueries[clickedChipId]
 
             val query = if (queryResourceId != null) {
-                getString(queryResourceId) // "정치", "기술" 등 실제 쿼리 문자열
+                getString(queryResourceId)
             } else {
-                // 맵에 없는 칩이 눌린 경우 (안전 장치)
                 getString(R.string.section_latest_news)
             }
 
-            // 3. 뷰모델로 쿼리를 실행합니다.
             newsViewModel.searchNewsByCategory(query)
             Toast.makeText(context, "$query 선택", Toast.LENGTH_SHORT).show()
             Log.d("ChipEvent", "Query Executed: $query (ID: $clickedChipId)")
+
+            // ★★★ START: 칩 클릭 시 SearchView를 닫는 이벤트 호출 (추가) ★★★
+            // newsViewModel.collapseSearchViewEvent.postValue(true) // <- 이 줄도 NewsViewModel에서 제거되었으므로 삭제합니다.
+            // ★★★ END ★★★
         }
 
-        // 바인딩을 통해 각 칩에 위에서 만든 리스너를 할당합니다.
         binding.chipPolitics.setOnClickListener(chipClickListener)
         binding.chipTechnology.setOnClickListener(chipClickListener)
         binding.chipSports.setOnClickListener(chipClickListener)
         binding.chipEntertainment.setOnClickListener(chipClickListener)
         binding.chipEconomy.setOnClickListener(chipClickListener)
         binding.chipWorld.setOnClickListener(chipClickListener)
+
+        // ★★★ ChipGroup 리스너 제거 ★★★
+        // binding.chipGroupCategory.setOnCheckedChangeListener { group, checkedId -> ... }
     }
 
     override fun onDestroyView() {

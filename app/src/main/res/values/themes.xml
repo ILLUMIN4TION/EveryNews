@@ -4,6 +4,9 @@
         <item name="colorOnPrimary">@color/opera_on_primary_light</item>
         <item name="colorPrimaryContainer">@color/opera_primary_container_light</item>
         <item name="colorOnPrimaryContainer">@color/opera_on_primary_container_light</item>
+
+        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
     </style>
 
     <style name="App.BottomNavigation.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
@@ -25,4 +28,8 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
+    <style name="App.Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

@@ -8,7 +8,6 @@
     android:background="?attr/colorSurface"
     tools:context=".ui.HomeFragment">
 
-    <!-- 1. 고정된 카테고리 섹션을 위한 AppBarLayout -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/categoryAppBarLayout"
         android:layout_width="0dp"
@@ -17,20 +16,19 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="?attr/colorPrimaryContainer"> <!-- ★★★ 색상 변경 (예시: primaryContainer) ★★★ -->
+        android:background="?attr/colorPrimaryContainer">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Every News 제목은 MainActivity 툴바에 있으므로 여기서 제거 -->
-
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="none">
-
+                android:scrollbars="none"
+                android:requiresFadingEdge="horizontal"
+                android:fadingEdgeLength="24dp">
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroupCategory"
                     android:layout_width="wrap_content"
@@ -39,46 +37,53 @@
                     android:paddingEnd="16dp"
                     app:singleSelection="true"
                     app:singleLine="true">
+
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipPolitics"
                         style="@style/Widget.MaterialComponents.Chip.Action"
-                        android:layout_width="wrap_content"
+                        android:layout_width="120dp"
                         android:layout_height="wrap_content"
+                        android:textAlignment="center"
                         android:text="@string/category_politics"
                         android:textColor="?attr/colorOnSurface" />
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipTechnology"
                         style="@style/Widget.MaterialComponents.Chip.Action"
-                        android:layout_width="wrap_content"
+                        android:layout_width="120dp"
                         android:layout_height="wrap_content"
+                        android:textAlignment="center"
                         android:text="@string/category_technology"
                         android:textColor="?attr/colorOnSurface" />
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipSports"
                         style="@style/Widget.MaterialComponents.Chip.Action"
-                        android:layout_width="wrap_content"
+                        android:layout_width="120dp"
                         android:layout_height="wrap_content"
+                        android:textAlignment="center"
                         android:text="@string/category_sports"
                         android:textColor="?attr/colorOnSurface" />
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipEntertainment"
                         style="@style/Widget.MaterialComponents.Chip.Action"
-                        android:layout_width="wrap_content"
+                        android:layout_width="120dp"
                         android:layout_height="wrap_content"
+                        android:textAlignment="center"
                         android:text="@string/category_entertainment"
                         android:textColor="?attr/colorOnSurface" />
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipEconomy"
                         style="@style/Widget.MaterialComponents.Chip.Action"
-                        android:layout_width="wrap_content"
+                        android:layout_width="120dp"
                         android:layout_height="wrap_content"
+                        android:textAlignment="center"
                         android:text="@string/category_economy"
                         android:textColor="?attr/colorOnSurface" />
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipWorld"
                         style="@style/Widget.MaterialComponents.Chip.Action"
-                        android:layout_width="wrap_content"
+                        android:layout_width="120dp"
                         android:layout_height="wrap_content"
+                        android:textAlignment="center"
                         android:text="@string/category_world"
                         android:textColor="?attr/colorOnSurface" />
                 </com.google.android.material.chip.ChipGroup>
@@ -86,124 +91,115 @@
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- 2. SwipeRefreshLayout (스크롤 영역) -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/categoryAppBarLayout"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/nestedScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="16dp">
+            android:layout_height="match_parent">
 
-            <!-- 기존 앱 제목은 제거되었음 -->
-
-            <!-- 3. 섹션 제목 수정 (인기 뉴스) -->
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
+                android:orientation="vertical"
+                android:paddingBottom="16dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/section_trending_news"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold"
+                        android:textSize="25dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginStart="0dp"/>
+
+                </RelativeLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:layout_marginHorizontal="15dp"
+                    android:id="@+id/rv_trending_news"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:clipToPadding="false"
+                    tools:listitem="@layout/item_news_small"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@drawable/dotted_line"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/section_trending_news"
+                    android:text="@string/section_latest_news"
                     android:textColor="?attr/colorOnSurface"
                     android:textStyle="bold"
                     android:textSize="25dp"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="0dp"/>
-
-            </RelativeLayout>
-
-            <!-- rv_trending_news (가로 스크롤) -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:layout_marginHorizontal="15dp"
-                android:id="@+id/rv_trending_news"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:clipToPadding="false"
-                tools:listitem="@layout/item_news_small"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@drawable/dotted_line"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"/>
-
-            <!-- 4. 섹션 제목 수정 (최신 뉴스) -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/section_latest_news"
-                android:textColor="?attr/colorOnSurface"
-                android:textStyle="bold"
-                android:textSize="25dp"
-                android:layout_margin="10dp"
-                android:layout_marginStart="6dp" />
+                    android:layout_margin="10dp"
+                    android:layout_marginStart="6dp" />
 
 
-            <!-- rv_default_news (세로 스크롤 - NestedScrollView의 자식) -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_default_news"
-                android:layout_gravity="center"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:layout_marginTop="8dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:clipToPadding="false"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_default_news"
+                    android:layout_gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginTop="8dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:clipToPadding="false"/>
 
-            <!-- 로딩 프로그레스바 -->
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"/>
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"/>
 
 
-        </LinearLayout>
+            </LinearLayout>
 
-    </androidx.core.widget.NestedScrollView>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <!-- 최상단 이동 버튼 (Go to Top FAB) -->
-<com.google.android.material.floatingactionbutton.FloatingActionButton
-android:id="@+id/fabScrollToTop"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:layout_margin="16dp"
-android:src="@drawable/ic_chevron_up"
-app:layout_constraintBottom_toBottomOf="parent"
-app:layout_constraintEnd_toEndOf="parent"
-android:contentDescription="@string/scroll_to_top"
-android:visibility="gone"/>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabScrollToTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_chevron_up"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="@string/scroll_to_top"
+        android:visibility="gone"/>
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

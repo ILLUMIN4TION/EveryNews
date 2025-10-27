@@ -5,9 +5,9 @@
 
     <!-- 앱 바 제목 -->
     <string name="title_home">Every News</string>
-    <string name="title_recommend">추천 뉴스</string>
-    <string name="title_scrap">스크랩 뉴스</string>
-    <string name="title_settings">앱 설정</string>
+    <string name="title_recommend">Every News</string>
+    <string name="title_scrap">Every News</string>
+    <string name="title_settings">Every News</string>
 
     <!-- 카테고리 버튼-->
     <string name="app_title">Every News</string>
@@ -34,4 +34,6 @@
     <string name="scroll_to_top">스크롤 최상단으로 이동</string>
     <string name="search_hint">검색어를 입력하세요</string>
     <string name="search_no_results">검색 결과가 없습니다.</string>
+
+    <string name="search_hint_new">뉴스 검색</string>
 </resources>
