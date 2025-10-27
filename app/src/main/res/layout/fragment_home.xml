@@ -163,7 +163,10 @@
                     android:layout_marginStart="6dp" />
 
 
-                <androidx.recyclerview.widget.RecyclerView
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="200dp"> <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_default_news"
                     android:layout_gravity="center"
                     android:layout_width="match_parent"
@@ -174,6 +177,16 @@
                     android:paddingEnd="16dp"
                     android:clipToPadding="false"/>
 
+                    <ProgressBar
+                        android:id="@+id/progressBarCategory"
+                        style="?android:attr/progressBarStyleLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                </FrameLayout>
                 <ProgressBar
                     android:id="@+id/progressBar"
                     style="?android:attr/progressBarStyle"

@@ -50,6 +50,8 @@
         app:layout_constraintTop_toTopOf="@id/rv_recommended_news"
         app:layout_constraintBottom_toBottomOf="@id/rv_recommended_news"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        style="?android:attr/progressBarStyleLarge"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -53,6 +53,12 @@ class HomeFragment : Fragment() {
         setupSwipeRefresh()
 
         if (savedInstanceState == null) {
+            // ★★★ 앱 시작 시 최초 로드 ★★★
+            // 최초 로드 시에도 로딩바를 보여주기 위해 칩 클릭 리스너의 로직을 동일하게 적용
+            binding.rvDefaultNews.visibility = View.GONE
+            binding.progressBarCategory.visibility = View.VISIBLE
+            binding.progressBar.visibility = View.GONE
+
             newsViewModel.searchNewsByCategory(getString(R.string.section_latest_news))
             Log.d("HomeFragment", "Initial Query: Latest News")
 
@@ -63,6 +69,12 @@ class HomeFragment : Fragment() {
     private fun setupSwipeRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             val currentQuery = getCurrentSelectedQuery()
+
+            // ★★★ 새로고침 시에도 카테고리 로딩바 표시 ★★★
+            binding.rvDefaultNews.visibility = View.GONE
+            binding.progressBarCategory.visibility = View.VISIBLE
+            binding.progressBar.visibility = View.GONE
+
             newsViewModel.searchNewsByCategory(currentQuery)
             newsViewModel.fetchTrendingNews(getString(R.string.section_trending_news))
         }
@@ -96,7 +108,10 @@ class HomeFragment : Fragment() {
         binding.nestedScrollView.setOnScrollChangeListener { v: NestedScrollView, _, scrollY, _, oldScrollY ->
             if (scrollY == (v.getChildAt(0).measuredHeight - v.measuredHeight) && scrollY > oldScrollY) {
                 Log.d("HomeFragment", "NestedScrollView End Reached. Loading More News...")
-                newsViewModel.loadMoreDefaultNews()
+                // ★★★ "더 보기" 로드 시에는 카테고리 로딩바가 보이지 않도록 확인 ★★★
+                if (binding.progressBarCategory.visibility != View.VISIBLE) {
+                    newsViewModel.loadMoreDefaultNews()
+                }
             }
 
             if (scrollY > 500) {
@@ -120,6 +135,11 @@ class HomeFragment : Fragment() {
     private fun observeViewModel() {
         newsViewModel.defaultNewsList.observe(viewLifecycleOwner) { newsList ->
             defaultNewsAdapter.updateData(newsList)
+
+            // ★★★ START: 데이터 로드 완료 시, 리스트 표시 및 카테고리 로딩바 숨김 ★★★
+            binding.rvDefaultNews.visibility = View.VISIBLE
+            binding.progressBarCategory.visibility = View.GONE
+            // ★★★ END ★★★
         }
 
         newsViewModel.trendingNewsList.observe(viewLifecycleOwner) { newsList ->
@@ -130,21 +150,20 @@ class HomeFragment : Fragment() {
             defaultNewsAdapter.addData(newItems)
         }
 
+        // ★★★ START: "더 보기" 로딩 및 "새로고침" 상태만 제어하도록 수정 ★★★
         newsViewModel.isLoadInProgress.observe(viewLifecycleOwner) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-            if (!isLoading) {
+            if (isLoading) {
+                // "더 보기" 로딩 중일 때 (즉, 스와이프나 카테고리 로딩이 아닐 때)
+                if (!binding.swipeRefreshLayout.isRefreshing && binding.progressBarCategory.visibility != View.VISIBLE) {
+                    binding.progressBar.visibility = View.VISIBLE // 하단 "더 보기" 바 표시
+                }
+            } else {
+                // 로딩 완료 시, 스와이프 및 하단 바 모두 숨김
                 binding.swipeRefreshLayout.isRefreshing = false
+                binding.progressBar.visibility = View.GONE
             }
         }
-
-        // ★★★ START: 이 코드 블록을 삭제하세요 (151 ~ 157라인) ★★★
-        // newsViewModel.clearChipSelectionEvent.observe(viewLifecycleOwner) { shouldClear ->
-        //     if (shouldClear) {
-        //         Log.d("HomeFragment", "Clearing chips due to search")
-        //         binding.chipGroupCategory.clearCheck()
-        //     }
-        // }
-        // ★★★ END: 삭제할 코드 블록 ★★★
+        // ★★★ END ★★★
     }
 
     private fun setupEventListeners() {
@@ -160,13 +179,15 @@ class HomeFragment : Fragment() {
                 getString(R.string.section_latest_news)
             }
 
+            // ★★★ START: 칩 클릭 시, 리스트 숨기고 카테고리 로딩바 표시 ★★★
+            binding.rvDefaultNews.visibility = View.GONE
+            binding.progressBarCategory.visibility = View.VISIBLE
+            binding.progressBar.visibility = View.GONE // 하단 "더 보기" 바 숨기기
+            // ★★★ END ★★★
+
             newsViewModel.searchNewsByCategory(query)
             Toast.makeText(context, "$query 선택", Toast.LENGTH_SHORT).show()
             Log.d("ChipEvent", "Query Executed: $query (ID: $clickedChipId)")
-
-            // ★★★ START: 칩 클릭 시 SearchView를 닫는 이벤트 호출 (추가) ★★★
-            // newsViewModel.collapseSearchViewEvent.postValue(true) // <- 이 줄도 NewsViewModel에서 제거되었으므로 삭제합니다.
-            // ★★★ END ★★★
         }
 
         binding.chipPolitics.setOnClickListener(chipClickListener)
@@ -175,9 +196,6 @@ class HomeFragment : Fragment() {
         binding.chipEntertainment.setOnClickListener(chipClickListener)
         binding.chipEconomy.setOnClickListener(chipClickListener)
         binding.chipWorld.setOnClickListener(chipClickListener)
-
-        // ★★★ ChipGroup 리스너 제거 ★★★
-        // binding.chipGroupCategory.setOnCheckedChangeListener { group, checkedId -> ... }
     }
 
     override fun onDestroyView() {

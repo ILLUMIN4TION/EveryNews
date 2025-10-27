@@ -42,6 +42,11 @@ class RecommendFragment : Fragment() {
         setupRecyclerView()
         setupEventListeners()
         observeViewModel()
+
+        // ★★★ 프래그먼트가 처음 생성될 때도 로딩 바를 표시하기 위해 로드 함수 호출 ★★★
+        if (savedInstanceState == null) {
+            recommendViewModel.fetchRecommendedNews()
+        }
     }
 
     private fun setupViewModel() {
@@ -71,15 +76,22 @@ class RecommendFragment : Fragment() {
     private fun observeViewModel() {
         recommendViewModel.recommendedNewsList.observe(viewLifecycleOwner) { newsList ->
             recommendNewsAdapter.updateData(newsList)
-            // 로딩 완료 후 프로그레스바 숨기기
-            binding.pbRecommendLoading.visibility = View.GONE
+            // ★★★ 데이터가 도착하면 어댑터만 업데이트 (UI 표시는 isLoading 옵저버가 담당) ★★★
         }
 
-        // 초기 로딩 상태 처리 (RecommendViewModel에 로딩 상태 LiveData가 있다고 가정)
-        // 현재 RecommendViewModel에는 없지만, 나중에 추가된다고 가정하고 ProgressBar를 미리 준비
-        // if (recommendViewModel.isLoading.value == true) {
-        //     binding.pbRecommendLoading.visibility = View.VISIBLE
-        // }
+        // ★★★ START: isLoading 상태를 관찰하여 UI 변경 ★★★
+        recommendViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading) {
+                // 로딩 시작: 리스트 숨기고 프로그레스 바 표시
+                binding.rvRecommendedNews.visibility = View.GONE
+                binding.pbRecommendLoading.visibility = View.VISIBLE
+            } else {
+                // 로딩 완료: 리스트 표시하고 프로그레스 바 숨김
+                binding.rvRecommendedNews.visibility = View.VISIBLE
+                binding.pbRecommendLoading.visibility = View.GONE
+            }
+        }
+        // ★★★ END ★★★
     }
 
     override fun onDestroyView() {
