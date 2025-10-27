@@ -14,6 +14,8 @@ import com.example.everynewsapp.news.model.toScrappedNewsItem
 import com.example.everynewsapp.news.network.NaverNewsApi
 import com.example.everynewsapp.news.repository.NewsRepository
 import com.example.everynewsapp.ui.LockScreenNewsManager
+import kotlinx.coroutines.Job // ★★★ 코루틴 Job 임포트 ★★★
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class NewsViewModel(
@@ -22,110 +24,110 @@ class NewsViewModel(
 ) : AndroidViewModel(application) {
 
     // --- HomeFragment가 관찰하는 LiveData ---
-
-    // 기본 뉴스 리스트 (카테고리별 또는 검색별)
+    // (기존 코드와 동일)
     private val _defaultNewsList = MutableLiveData<List<NewsItem>>()
     val defaultNewsList: LiveData<List<NewsItem>> get() = _defaultNewsList
-
-    // 트렌딩 뉴스(인기 뉴스) 리스트
     private val _trendingNewsList = MutableLiveData<List<NewsItem>>()
     val trendingNewsList: LiveData<List<NewsItem>> get() = _trendingNewsList
-
-    // 더 보기 로드 이벤트
     private val _loadMoreEvent = MutableLiveData<List<NewsItem>>()
     val loadMoreEvent: LiveData<List<NewsItem>> get() = _loadMoreEvent
-
-    // 로딩 중 상태 (ProgressBar 및 SwipeRefresh)
     private val _isLoadInProgress = MutableLiveData(false)
     val isLoadInProgress: LiveData<Boolean> get() = _isLoadInProgress
-
-    // 스크랩 리스트
     private val _scrappedNewsList = newsRepository.getAllScrappedNews().asLiveData()
     val scrappedNewsList: LiveData<List<ScrappedNewsItem>> get() = _scrappedNewsList
 
 
     // ★★★ MainActivity <-> HomeFragment 통신용 LiveData ★★★
-    // 검색 실행 시 -> HomeFragment의 칩 선택을 해제하기 위한 이벤트
+    // (기존 코드와 동일)
     val clearChipSelectionEvent = MutableLiveData<Boolean>()
-    // 칩 클릭 시 -> MainActivity의 SearchView(검색창)를 닫기 위한 이벤트
-    val collapseSearchViewEvent = MutableLiveData<Boolean>() // 변수명 변경
-
-
-    // --- SearchActivity 관련 코드 모두 제거 ---
-    // (기존 _searchNewsList, searchNews 등 모두 삭제)
+    val collapseSearchViewEvent = MutableLiveData<Boolean>()
 
 
     // --- 뉴스 로드 상태 관리 ---
     private var currentDefaultNewsPage = 1
     private val defaultNewsDisplayCount = 20
     private val trendingNewsDisplayCount = 10
-
-    // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-    // ★★★ 여기를 수정했습니다! ("" -> R.string.section_latest_news) ★★★
     private var currentQuery = getApplication<Application>().getString(R.string.section_latest_news)
-    // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+    private var isLoading = false
 
-    private var isLoading = false // 중복 로드 방지 플래그
+    // ★★★ 현재 진행 중인 검색 작업을 추적하기 위한 Job 변수 추가 ★★★
+    private var searchJob: Job? = null
+    private var loadMoreJob: Job? = null // (더 보기도 Job으로 관리)
 
 
     init {
-        // 앱 실행 시 "최신 뉴스" 로드
-        // 이제 currentQuery에 "최신 뉴스"가 들어있으므로 정상 호출됩니다.
-        searchNewsByCategory(currentQuery)
-        // 트렌딩 뉴스 로드
+        // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        // ★★★ 수정: HomeFragment의 TabLayout이 로드를 트리거하므로 중복 호출 제거 ★★★
+        // searchNewsByCategory(currentQuery)
+        // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
+        // 트렌딩 뉴스 로드는 유지
         fetchTrendingNews(getApplication<Application>().getString(R.string.section_trending_news))
     }
 
     /**
      * [수정됨] 카테고리 칩 클릭 또는 SearchView 검색 시 호출되는 메인 함수
-     * (기존 fetchDefaultNews(isLoadMore = false) 로직 통합)
      */
     fun searchNewsByCategory(query: String) {
-        // "최신 뉴스"가 들어와도 isBlank()가 false이므로 통과합니다.
         if (query.isBlank()) return
-        if (isLoading) return
+
+        // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        // ★★★ 핵심 수정: isLoading 체크 대신, 기존 Job을 취소합니다. ★★★
+        // if (isLoading) return // <-- 이 코드를 제거 (또는 주석 처리)
+
+        // 1. 진행 중인 '새 검색' 또는 '더 보기' 작업을 모두 취소
+        searchJob?.cancel()
+        loadMoreJob?.cancel()
+        // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
+        // 2. 새 작업 시작을 위해 상태 설정
         isLoading = true
         _isLoadInProgress.value = true
 
-        // 새 쿼리이므로 페이지 1부터 다시 시작
         currentQuery = query
         currentDefaultNewsPage = 1
-        val startItemPosition = 1 // (currentDefaultNewsPage - 1) * defaultNewsDisplayCount + 1
+        val startItemPosition = 1
 
         Log.d("NewsViewModel", "Starting new search for query: $query")
 
-        viewModelScope.launch {
+        // 3. 새 작업을 searchJob 변수에 할당
+        searchJob = viewModelScope.launch {
             try {
                 val fetchedItems = NaverNewsApi.fetchNews(currentQuery, defaultNewsDisplayCount, startItemPosition)
 
                 fetchedItems?.let { items ->
-                    // 새 리스트이므로 'LoadMore'가 아닌 'defaultNewsList'에 값을 게시
                     _defaultNewsList.value = items
-
-                    // 락스크린용 뉴스 저장
                     if (items.isNotEmpty()) {
                         LockScreenNewsManager.saveNews(getApplication(), items[0])
                     }
                 } ?: run {
                     Log.e("NewsViewModel", "Error fetching news for query: $currentQuery (null response)")
-                    _defaultNewsList.value = emptyList() // 오류 시 빈 리스트 처리
+                    _defaultNewsList.value = emptyList()
                 }
             } catch (e: Exception) {
-                Log.e("NewsViewModel", "Error fetching news", e)
-                _defaultNewsList.value = emptyList()
+                // (Job이 취소된 경우, CancellationException이 발생할 수 있으나 정상 동작임)
+                if (e is kotlinx.coroutines.CancellationException) {
+                    Log.d("NewsViewModel", "Search for $query cancelled.")
+                } else {
+                    Log.e("NewsViewModel", "Error fetching news", e)
+                    _defaultNewsList.value = emptyList()
+                }
             } finally {
-                isLoading = false
-                _isLoadInProgress.value = false
+                // (Job이 정상적으로 완료되었을 때만 isLoading 해제)
+                if(this.isActive) {
+                    isLoading = false
+                    _isLoadInProgress.value = false
+                }
             }
         }
     }
 
     /**
      * [수정됨] HomeFragment에서 스크롤이 끝에 닿았을 때 호출
-     * (기존 fetchDefaultNews(isLoadMore = true) 로직 통합)
      */
     fun loadMoreDefaultNews() {
-        if (isLoading) return // 이미 로드 중이면 중복 실행 방지
+        // '새 검색'이 진행 중이거나 '더 보기'가 이미 진행 중이면 return
+        if (isLoading) return
 
         isLoading = true
         _isLoadInProgress.value = true
@@ -134,35 +136,38 @@ class NewsViewModel(
 
         Log.d("NewsViewModel", "Loading more for query: $currentQuery, Page: $currentDefaultNewsPage")
 
-        viewModelScope.launch {
+        // '더 보기' 작업을 loadMoreJob 변수에 할당
+        loadMoreJob = viewModelScope.launch {
             try {
                 val fetchedItems = NaverNewsApi.fetchNews(currentQuery, defaultNewsDisplayCount, startItemPosition)
 
                 fetchedItems?.let { items ->
-                    // 추가 로드이므로 'loadMoreEvent'에 값을 게시
                     _loadMoreEvent.value = items
                 } ?: run {
-                    // 실패 시 페이지 번호 롤백
                     currentDefaultNewsPage--
                     Log.e("NewsViewModel", "Error loading more news (null response)")
                 }
             } catch (e: Exception) {
-                Log.e("NewsViewModel", "Error loading more news", e)
-                currentDefaultNewsPage-- // 실패 시 페이지 번호 롤백
+                // ★★★ 버그 수정: $query -> $currentQuery ★★★
+                if (e is kotlinx.coroutines.CancellationException) {
+                    Log.d("NewsViewModel", "Load more for $currentQuery cancelled.")
+                    currentDefaultNewsPage-- // 취소 시 페이지 롤백
+                } else {
+                    Log.e("NewsViewModel", "Error loading more news", e)
+                    currentDefaultNewsPage--
+                }
             } finally {
-                isLoading = false
-                _isLoadInProgress.value = false
+                if(this.isActive) {
+                    isLoading = false
+                    _isLoadInProgress.value = false
+                }
             }
         }
     }
 
-    // --- fetchDefaultNews 함수 제거 ---
-    // (위의 두 함수로 로직이 통합되었으므로 제거)
-    // private fun fetchDefaultNews(isLoadMore: Boolean) { ... }
-
-
     /**
      * 트렌딩(인기) 뉴스 로드
+     * (이 함수는 isLoading 플래그와 무관하게 독립적으로 실행되도록 둡니다)
      */
     fun fetchTrendingNews(query: String) {
         viewModelScope.launch {
@@ -175,12 +180,7 @@ class NewsViewModel(
         }
     }
 
-    // --- Search News Functions (모두 제거) ---
-    // fun searchNews(query: String) { ... }
-    // fun loadMoreSearchNews() { ... }
-    // private fun fetchSearchNews(isLoadMore: Boolean) { ... }
-
-
+    // (... toggleScrap, removeScrap 함수는 기존과 동일 ...)
     /**
      * 뉴스 스크랩 (DB에 저장/삭제)
      */

@@ -6,47 +6,47 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.everynewsapp.R
 import com.example.everynewsapp.databinding.FragmentHomeBinding
 import com.example.everynewsapp.news.viewModel.NewsViewModel
-import com.google.android.material.chip.Chip
-import androidx.core.widget.NestedScrollView
+import com.google.android.material.tabs.TabLayout // ★★★ TabLayout 임포트 ★★★
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
+    // Activity와 동일한 ViewModel 인스턴스 사용
     private val newsViewModel: NewsViewModel by activityViewModels()
 
     private lateinit var defaultNewsAdapter: NewsAdapter
     private lateinit var trendingNewsAdapter: TrendingNewsAdapter
 
-    // 칩 ID와 쿼리 문자열 리소스 ID 매핑 (기존 코드 유지)
-    private val chipQueries = mapOf(
-        R.id.chipPolitics to R.string.query_politics,
-        R.id.chipTechnology to R.string.query_technology,
-        R.id.chipSports to R.string.query_sports,
-        R.id.chipEntertainment to R.string.query_entertainment,
-        R.id.chipEconomy to R.string.query_economy,
-        R.id.chipWorld to R.string.query_world,
-    )
-
-    // ★★★ 변경 ★★★
-    // '정치' 칩의 초기(프로그래매틱) 클릭으로 인한 중복 쿼리 방지 플래그
-    // 이 플래그는 더 이상 ChipGroup 리스너에서 사용되지 않지만,
-    // onViewCreated의 초기화 로직을 명확히 하기 위해 남겨둘 수 있습니다. (사실상 필요 없어짐)
-    // private var skipNextQuery = false // -> setupEventListeners에서 이 로직을 제거함
+    // ★★★ 수정: 카테고리 리스트 ★★★
+    // 탭에 표시할 문자열 리스트를 만듭니다.
+    private lateinit var categories: List<String>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
+
+        // ★★★ 카테고리 리스트 초기화 (getString을 사용하기 위해) ★★★
+        categories = listOf(
+            getString(R.string.section_latest_news), // "최신 뉴스"를 맨 앞으로
+            getString(R.string.query_politics),
+            getString(R.string.query_technology),
+            getString(R.string.query_sports),
+            getString(R.string.query_entertainment),
+            getString(R.string.query_economy),
+            getString(R.string.query_world)
+        )
+
         return binding.root
     }
 
@@ -54,45 +54,35 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerViews()
-        setupEventListeners() // ★★★ 가장 중요 ★★★
+        setupTabLayout() // ★★★ setupEventListeners -> setupTabLayout으로 변경 ★★★
         observeViewModel()
         setupSwipeRefresh()
 
-        // ★★★ 변경: 사용자의 요구사항 반영 ★★★
-        if (savedInstanceState == null) {
-            // 1. 앱 시작 시 무조건 '최신뉴스'를 조회합니다. (요구사항 1)
-            newsViewModel.searchNewsByCategory(getString(R.string.section_latest_news))
-            Log.d("HomeFragment", "Initial Query: Latest News")
-
-            // 2. '정치' 칩을 시각적으로만 선택합니다. (리스너가 분리되어 쿼리 실행 안 됨)
-            binding.chipGroupCategory.check(R.id.chipPolitics)
-        }
+        // ★★★ (제거) ★★★
+        // 초기 로드 로직은 setupTabLayout에서 첫 탭을 선택하는 것으로 변경됨
+        // if (savedInstanceState == null) { ... }
     }
 
     private fun setupSwipeRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
-            val currentQuery = getCurrentSelectedQuery()
+            val currentQuery = getCurrentSelectedQuery() // ★★★ 수정된 함수 사용 ★★★
             newsViewModel.searchNewsByCategory(currentQuery)
             newsViewModel.fetchTrendingNews(getString(R.string.section_trending_news))
         }
     }
 
-    // 현재 선택된 쿼리를 가져오는 보조 함수 (기존 코드 유지)
+    // ★★★ 수정: 현재 선택된 '탭'의 쿼리를 가져옴 ★★★
     private fun getCurrentSelectedQuery(): String {
-        val checkedId = binding.chipGroupCategory.checkedChipId
-
-        if (checkedId == View.NO_ID) {
-            return getString(R.string.section_latest_news)
-        }
-        val queryResourceId = chipQueries[checkedId]
-
-        return if (queryResourceId != null) {
-            getString(queryResourceId)
+        // 현재 선택된 탭의 인덱스를 가져옵니다.
+        val selectedTabIndex = binding.tabLayoutCategory.selectedTabPosition
+        // 인덱스가 유효하면 categories 리스트에서 쿼리 문자열을 가져옵니다.
+        return if (selectedTabIndex != -1 && selectedTabIndex < categories.size) {
+            categories[selectedTabIndex]
         } else {
+            // 탭이 선택되지 않은 경우(예: 검색 직후) "최신 뉴스"를 기본값으로
             getString(R.string.section_latest_news)
         }
     }
-
 
     private fun setupRecyclerViews() {
         // (기존 코드와 동일)
@@ -127,71 +117,80 @@ class HomeFragment : Fragment() {
         binding.rvTrendingNews.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
     }
 
+    // ★★★ observeViewModel 함수 수정/추가 ★★★
     private fun observeViewModel() {
-        // (기존 코드와 동일, viewFalser 오타 수정됨)
+        // 1. 기존 뉴스 리스트 옵저버 (유지)
         newsViewModel.defaultNewsList.observe(viewLifecycleOwner) { newsList ->
             defaultNewsAdapter.updateData(newsList)
+            // (선택 사항: 새 리스트 로드 시 스크롤을 맨 위로)
+            binding.nestedScrollView.smoothScrollTo(0, 0)
         }
-
         newsViewModel.trendingNewsList.observe(viewLifecycleOwner) { newsList ->
             trendingNewsAdapter.updateData(newsList)
         }
-
         newsViewModel.loadMoreEvent.observe(viewLifecycleOwner) { newItems ->
             defaultNewsAdapter.addData(newItems)
         }
-
         newsViewModel.isLoadInProgress.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             if (!isLoading) {
                 binding.swipeRefreshLayout.isRefreshing = false
             }
         }
-        // 2. ★★★ MainActivity의 검색에 반응하는 옵저버 (추가) ★★★
+
+        // 2. ★★★ MainActivity의 검색에 반응하는 옵저버 (수정) ★★★
         newsViewModel.clearChipSelectionEvent.observe(viewLifecycleOwner) { shouldClear ->
-            if (shouldClear) {
-                Log.d("HomeFragment", "Clearing chips due to search")
-                binding.chipGroupCategory.clearCheck()
+            if (shouldClear == true) { // null 체크
+                Log.d("HomeFragment", "Clearing tab selection due to search")
+                // 탭의 선택을 해제합니다. (리스너를 트리거하지 않습니다)
+                binding.tabLayoutCategory.clearOnTabSelectedListeners()
+                newsViewModel.clearChipSelectionEvent.postValue(false) // 이벤트 소비
             }
         }
     }
 
-    // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-    // ★★★ 변경: 리스너 설정 로직 전체 변경 ★★★
-    // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-    private fun setupEventListeners() {
-
-
-        val chipClickListener = View.OnClickListener { view ->
-            // 클릭된 칩의 ID를 가져옵니다 (예: R.id.chipPolitics)
-            val clickedChipId = view.id
-
-            // 1. ChipGroup이 클릭된 칩을 시각적으로 선택하도록 강제합니다.
-            binding.chipGroupCategory.check(clickedChipId)
-
-            // 2. 맵(chipQueries)을 사용해 ID에 해당하는 쿼리(R.string.query_politics)를 찾습니다.
-            val queryResourceId = chipQueries[clickedChipId]
-
-            val query = if (queryResourceId != null) {
-                getString(queryResourceId) // "정치", "기술" 등 실제 쿼리 문자열
-            } else {
-                // 맵에 없는 칩이 눌린 경우 (안전 장치)
-                getString(R.string.section_latest_news)
-            }
-
-            // 3. 뷰모델로 쿼리를 실행합니다.
-            newsViewModel.searchNewsByCategory(query)
-            Toast.makeText(context, "$query 선택", Toast.LENGTH_SHORT).show()
-            Log.d("ChipEvent", "Query Executed: $query (ID: $clickedChipId)")
+    // ★★★ setupEventListeners -> setupTabLayout 함수로 변경 ★★★
+    private fun setupTabLayout() {
+        // 1. 카테고리 리스트로 탭을 동적으로 추가
+        categories.forEach { categoryName ->
+            binding.tabLayoutCategory.addTab(
+                binding.tabLayoutCategory.newTab().setText(categoryName)
+            )
         }
 
-        // 바인딩을 통해 각 칩에 위에서 만든 리스너를 할당합니다.
-        binding.chipPolitics.setOnClickListener(chipClickListener)
-        binding.chipTechnology.setOnClickListener(chipClickListener)
-        binding.chipSports.setOnClickListener(chipClickListener)
-        binding.chipEntertainment.setOnClickListener(chipClickListener)
-        binding.chipEconomy.setOnClickListener(chipClickListener)
-        binding.chipWorld.setOnClickListener(chipClickListener)
+        // 2. 탭 선택 리스너 설정
+        binding.tabLayoutCategory.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                tab?.let {
+                    val query = it.text.toString()
+                    Log.d("HomeFragment", "Tab selected: $query")
+                    // ViewModel에 쿼리 요청
+                    newsViewModel.searchNewsByCategory(query)
+                    // MainActivity의 SearchView를 닫도록 ViewModel에 요청
+                    newsViewModel.collapseSearchViewEvent.postValue(true)
+                }
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+                // (동작 없음)
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                // (선택 사항: 탭을 다시 눌렀을 때 새로고침)
+                tab?.let {
+                    newsViewModel.searchNewsByCategory(it.text.toString())
+                    // 스크롤을 맨 위로 올림
+                    binding.nestedScrollView.smoothScrollTo(0, 0)
+                }
+            }
+        })
+
+        // 3. (중요) ViewModel의 init{}에서 로드를 제거했으므로,
+        //    여기서 첫 번째 탭("최신 뉴스")을 수동으로 선택하여
+        //    'onTabSelected' 리스너를 트리거하고 초기 뉴스를 로드합니다.
+        if (binding.tabLayoutCategory.selectedTabPosition == -1) {
+            binding.tabLayoutCategory.getTabAt(0)?.select()
+        }
     }
 
     override fun onDestroyView() {
@@ -199,3 +198,4 @@ class HomeFragment : Fragment() {
         _binding = null
     }
 }
+
