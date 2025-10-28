@@ -19,7 +19,6 @@ import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import com.example.everynewsapp.NotificationSettingsActivity // ★★★ 추가 ★★★
 import com.example.everynewsapp.ThemeManager
 import com.example.everynewsapp.ThemeSettingsActivity
 import com.example.everynewsapp.databinding.FragmentSettingsBinding
@@ -87,12 +86,8 @@ class SettingsFragment : Fragment() {
             startActivity(intent)
         }
 
-        // ★★★ START: 누락된 알림 설정 클릭 리스너 추가 ★★★
-        binding.llNotificationSetting.setOnClickListener {
-            val intent = Intent(requireActivity(), NotificationSettingsActivity::class.java)
-            startActivity(intent)
-        }
-        // ★★★ END ★★★
+        // TODO: NotificationSettingsActivity 관련 이벤트가 있었다면 여기에 추가
+        // binding.llNotificationSetting.setOnClickListener { ... }
     }
 
     // ★★★ 서비스 시작 전 알림 권한 확인 로직 ★★★
