@@ -62,7 +62,8 @@ class HomeFragment : Fragment() {
             newsViewModel.searchNewsByCategory(getString(R.string.section_latest_news))
             Log.d("HomeFragment", "Initial Query: Latest News")
 
-            binding.chipGroupCategory.check(R.id.chipPolitics)
+            // ★★★ 수정된 부분: Politics 칩을 강제로 체크하는 라인 삭제 ★★★
+            // binding.chipGroupCategory.check(R.id.chipPolitics)
         }
     }
 
