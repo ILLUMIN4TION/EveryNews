@@ -6,6 +6,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.everynewsapp.ui.NewsNotificationWorker
 import java.util.concurrent.TimeUnit
 
 class EveryNewsApplication : Application() {
